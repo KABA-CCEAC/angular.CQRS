@@ -1,0 +1,13 @@
+{
+   "name": "angular.CQRS",
+   "version": "0.0.1",
+   "author": "xeronimus",
+   "private": true,
+   "dependencies": {
+
+   },
+   "devDependencies": {
+      "angular-mocks": "~1.2.18",
+      "angular": "~1.2.18"
+   }
+}

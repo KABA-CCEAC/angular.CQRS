@@ -1,0 +1,15 @@
+{
+   "rules": {
+      "browser": true,
+      "camelcase": 1,
+      "no-global-strict": 2,
+      "strict": 0,
+      "quotes": [2, "single"],
+      "if-curly-formatting": 0,
+      "angular-module-declaration": 2,
+      "angular-component-named-functions": 1
+   },
+   "globals": {
+      "angular": false
+   }
+}
