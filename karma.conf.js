@@ -12,7 +12,7 @@ module.exports = function (config) {
          'karma.conf.js'
       ],
       logLevel: config.LOG_INFO,
-      browsers: ['Chrome'],
+      browsers: ['PhantomJS'],
       // web server port
       port: 8081,
 
