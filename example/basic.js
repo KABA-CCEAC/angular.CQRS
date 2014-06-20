@@ -1,4 +1,4 @@
-var module = angular.module('basicExample', []);
+var module = angular.module('basicExample', ['ngCQRS']);
 
 module.config(function (CQRSProvider) {
 
