@@ -6,6 +6,9 @@ module.exports = function (config) {
       files: [
          'src/bower_components/angular/angular.js',
          'src/bower_components/angular-mocks/angular-mocks.js',
+         'src/cqrs/module.js',
+         'src/cqrs/**/*.js',
+         'test/testUtils/**/*.js',
          'test/**/*.js'
       ],
       exclude: [

@@ -2,3 +2,4 @@
 node_modules
 *.orig
 src/bower_components
+docs

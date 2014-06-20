@@ -26,7 +26,10 @@ module.exports = function (grunt) {
 
          // Watches files for changes and runs tasks based on the changed files
          watch: {
-
+            jstest: {
+               files: ['test/{,*/}*.js'],
+               tasks: ['test:watch']
+            }
          },
 
 
@@ -55,6 +58,24 @@ module.exports = function (grunt) {
             }
          },
 
+         // generate api documentation with ngdocs
+         ngdocs: {
+            options: {
+               dest: 'docs',
+               html5Mode: false,
+               startPage: '/api',
+               title: 'Angular.CQRS Documentation',
+               animation: true,
+               styles: ['docs/css/docuStyle.css']
+            },
+            api: {
+               src: [
+                  'src/cqrs/**/*.js',
+                  'src/cqrs/*.js'
+               ],
+               title: 'API Reference'
+            }
+         },
 
          // js style and error checking
          eslint: {
@@ -66,7 +87,7 @@ module.exports = function (grunt) {
                src: [
                   '<%= config.src %>/**/*.js',
                   '!<%= config.src %>/bower_components/**/*.js',
-                  '!<%= config.src %>/module.js'
+                  '!<%= config.src %>/**/module.js'
                ]
             },
             testfiles: {
@@ -96,17 +117,33 @@ module.exports = function (grunt) {
             unit: {
                configFile: 'karma.conf.js',
                singleRun: true
+            },
+            unitwatch: {
+               configFile: 'karma.conf.js',
+               singleRun: false,
+               autoWatch: true
             }
          }
       }
    );
 
 
+   grunt.registerTask('docu', [
+      'ngdocs'
+   ]);
+
    grunt.registerTask('test', [
       'eslint:sourcefiles',
       'eslint:testfiles',
       'connect:test',
       'karma:unit'
+   ]);
+
+   grunt.registerTask('testwatch', [
+      'eslint:sourcefiles',
+      'eslint:testfiles',
+      'connect:test',
+      'karma:unitwatch'
    ]);
 
    grunt.registerTask('default', [
