@@ -9,13 +9,22 @@ angular.module('ngCQRS')
  */
    .service('Store', function Store($rootScope, $q, CQRS) {
 
-      var store = { };
+      var store = {};
 
-      CQRS.onEvent(function (evt) {
-         if (angular.isDefined(evt.payload) && angular.isDefined(evt.payload.id)) {
-            store[evt.payload.id] = evt.payload;
-         }
-      });
+      function isValidDataModelUpdateEvent(evt) {
+         return ( angular.isDefined(evt.payload) && angular.isDefined(evt.payload.id));
+      }
+
+      function init() {
+         // register for events and update our store with the new data
+         CQRS.onEvent(function (evt) {
+            if (isValidDataModelUpdateEvent(evt)) {
+               store[evt.payload.id] = evt.payload;
+            }
+         });
+      }
+
+      init();
 
       /**
        * @ngdoc function
@@ -23,22 +32,36 @@ angular.module('ngCQRS')
        * @methodOf ngCQRS.service:Store
        *
        * @description
-       *  queries the server for data
+       *  Queries the server and returns a reference to the data that will be automatically updated on future events.
        */
-      function get(dataId) {
+      function get(modelName) {
+         // TODO:  should the server be queried every time ?
+         // or should this method return a reference to the data that is already in the store (matching the given modelName)
+
          var deferred = $q.defer();
-         var queryPromise = CQRS.query(dataId);
+         var queryPromise = CQRS.query(modelName);
          queryPromise.then(function (result) {
-            store[dataId] = result;
-            deferred.resolve(store[dataId]);
+            store[modelName] = result;
+            deferred.resolve(store[modelName]);
          });
          return deferred.promise;
       }
 
-      var serviceInstance = {
-         get: get
-      };
+      /**
+       * @ngdoc function
+       * @name ngCQRS.service:Store#clear
+       * @methodOf ngCQRS.service:Store
+       *
+       * @description
+       *  clears the store
+       */
+      function clear() {
+         store = {};
+      }
 
-      return serviceInstance;
+      return {
+         get: get,
+         clear: clear
+      };
 
    });

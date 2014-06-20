@@ -1,6 +1,6 @@
 describe('CQRSProvider', function () {
 
-   var CQRSProvider, CQRS;
+   var CQRSProvider;
 
    beforeEach(function () {
       // Initialize the service provider by injecting it to a fake module's config block
@@ -18,10 +18,6 @@ describe('CQRSProvider', function () {
       inject(function () {
       });
    });
-
-   beforeEach(inject(function (_CQRS_) {
-      CQRS = _CQRS_;
-   }));
 
 
    describe('#setUrlFactory()', function () {

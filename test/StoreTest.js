@@ -32,12 +32,7 @@ describe('Store', function () {
    });
 
    describe('#get()', function () {
-
-      it('should not be undefined', function () {
-         expect(Store.get).not.to.be(undefined);
-      });
-
-      it('should return a promise wich resolves eventually', function () {
+      it('should return a promise which resolves eventually', function () {
          var dummyDataId = '1234';
 
          $httpBackend.expect('GET', 'http://www.example.com/api/1234').respond({
@@ -49,10 +44,15 @@ describe('Store', function () {
             expect(result.id).to.equal(dummyDataId);
          });
 
-         // apply in order to trigger promise ro resolve
+         // call apply on the rootScope to trigger promise resolve
          $rootScope.$apply();
       });
+   });
 
+   describe('#clear()', function () {
+      it('should clear the store', function () {
+         Store.clear();
+      });
    });
 
 });
