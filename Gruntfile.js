@@ -24,6 +24,35 @@ module.exports = function (grunt) {
          config: config,
 
 
+         // delete files in folders
+         clean: {
+            dist: {
+               files: [
+                  {
+                     dot: true,
+                     src: [
+                        '.tmp',
+                        '<%= config.dist %>/*',
+                        '!<%= config.dist %>/.git*'
+                     ]
+                  }
+               ]
+            }
+         },
+
+         // concatenate source files to one
+         concat: {
+            dist: {
+               files: {
+                  '<%= config.dist %>/angular.cqrs.js': [
+                     '<%= config.src %>/{,*/}module.js',
+                     '<%= config.src %>/{,*/}*.js',
+                     '.tmp/{,*/}*.js'
+                  ]
+               }
+            }
+         },
+
          // Watches files for changes and runs tasks based on the changed files
          watch: {
             jstest: {
@@ -144,6 +173,13 @@ module.exports = function (grunt) {
       'eslint:testfiles',
       'connect:test',
       'karma:unitwatch'
+   ]);
+
+   grunt.registerTask('build', [
+      'clean:dist',
+      'test',
+      'docu',
+      'concat:dist'
    ]);
 
    grunt.registerTask('default', [

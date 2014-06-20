@@ -2,7 +2,11 @@
    "name": "angular.CQRS",
    "version": "0.0.1",
    "author": "xeronimus",
-   "private": true,
+   "ignore": [
+      "docs",
+      "test",
+      "example"
+   ],
    "dependencies": {
 
    },
