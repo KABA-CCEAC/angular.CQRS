@@ -75,7 +75,9 @@ angular.module('ngCQRS')
           *
           */
          function onEvent(listener) {
-            $rootScope.$on('CQRS:events', listener);
+            $rootScope.$on('CQRS:events', function (angularEvent, data) {
+               listener(data);
+            });
          }
 
          /**
