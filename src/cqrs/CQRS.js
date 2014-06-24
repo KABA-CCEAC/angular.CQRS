@@ -18,6 +18,10 @@ angular.module('ngCQRS')
          urlFactory = urlFactoryFunction;
       };
 
+      this.registerDenormalizer = function (dataId, eventName, denormalizerFunction) {
+
+      };
+
       /**
        * @ngdoc service
        * @kind function
