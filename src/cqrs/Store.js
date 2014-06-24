@@ -7,24 +7,50 @@ angular.module('ngCQRS')
  * @description
  *
  */
-   .service('Store', function Store($rootScope, $q, CQRS) {
+   .service('Store', function Store($rootScope, $q, $timeout, CQRS) {
 
       var store = {};
 
       function isValidDataModelUpdateEvent(evt) {
-         return ( angular.isDefined(evt.payload) && angular.isDefined(evt.payload.id));
+         return ( angular.isDefined(evt.payload) && angular.isDefined(evt.id));
       }
 
       function init() {
          // register for events and update our store with the new data
          CQRS.onEvent(function (evt) {
             if (isValidDataModelUpdateEvent(evt)) {
-               store[evt.payload.id] = evt.payload;
+               var storeItem = store[evt.id];
+               if (angular.isDefined(storeItem)) {
+                  storeItem.data = evt.payload;
+                  storeItem.callbacks.forEach(function (callback) {
+                     callback(evt.payload);
+                  });
+                  $rootScope.$apply();
+               }
             }
          });
       }
 
       init();
+
+      function throwErrorIfInvalidGetArguments(modelName, callback) {
+         if (angular.isUndefined(modelName) || typeof modelName !== 'string') {
+            throw 'Please provide a valid model Name (string)!';
+         }
+         if (angular.isUndefined(callback) || typeof callback !== 'function') {
+            throw 'Please provide a valid callback function!';
+         }
+      }
+
+      function queryPromiseResolved(result, modelName, callback) {
+         if (angular.isDefined(store[modelName])) {
+            store[modelName].callbacks.push(callback);
+            store[modelName].data = result;
+         } else {
+            store[modelName] = { callbacks: [callback], data: result};
+         }
+         callback(result);
+      }
 
       /**
        * @ngdoc function
@@ -32,20 +58,20 @@ angular.module('ngCQRS')
        * @methodOf ngCQRS.service:Store
        *
        * @description
-       *  Queries the server and returns a reference to the data that will be automatically updated on future events.
+       *  Queries the server for the required model. Will update given Scope on server events
        */
-      function get(modelName) {
+      function get(modelName, callback) {
+         throwErrorIfInvalidGetArguments(modelName, callback);
+
          // TODO:  should the server be queried every time ?
          // or should this method return a reference to the data that is already in the store (matching the given modelName)
 
-         var deferred = $q.defer();
          var queryPromise = CQRS.query(modelName);
          queryPromise.then(function (result) {
-            store[modelName] = result;
-            deferred.resolve(store[modelName]);
+            queryPromiseResolved(result, modelName, callback);
          });
-         return deferred.promise;
       }
+
 
       /**
        * @ngdoc function

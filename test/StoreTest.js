@@ -32,7 +32,7 @@ describe('Store', function () {
    });
 
    describe('#get()', function () {
-      it('should return a promise which resolves eventually', function () {
+      it('should invoke callback', function () {
          var dummyDataId = '1234';
 
          $httpBackend.expect('GET', 'http://www.example.com/api/1234').respond({
@@ -40,7 +40,7 @@ describe('Store', function () {
             attributeOne: 'attributeOneValue'
          });
 
-         Store.get(dummyDataId).then(function (result) {
+         Store.get(dummyDataId, function (result) {
             expect(result.id).to.equal(dummyDataId);
          });
 
