@@ -31,8 +31,12 @@ module.controller('MainController', function ($scope, Store, CQRS) {
 
    // send a query to the server, requesting data with the id 'name'
    // CQRS will update your scope variable on every update event from the server
-   Store.get('myProfile').then(function (data) {
+   Store.get('myProfile', function (data) {
       $scope.profile = data;
+   });
+
+   $scope.$watch('profile', function (newProfile) {
+      // do something when updated...
    });
 
    $scope.onClick = function () {
