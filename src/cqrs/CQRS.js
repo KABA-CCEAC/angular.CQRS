@@ -101,7 +101,9 @@ angular.module('ngCQRS')
           *
           */
          function onCommand(listener) {
-            $rootScope.$on('CQRS:commands', listener);
+            $rootScope.$on('CQRS:commands', function (angularEvent, data) {
+               listener(data);
+            });
          }
 
 
