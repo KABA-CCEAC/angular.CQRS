@@ -1,58 +1,182 @@
 describe('Store', function () {
 
-   var CQRSProvider, Store, $rootScope, $httpBackend;
+  var CQRSProvider, Store, $rootScope, $httpBackend;
 
-   beforeEach(function () {
-      // Initialize the service provider by injecting it to a fake module's config block
-      var fakeModule = angular.module('testApp', function () {
+  beforeEach(function () {
+    // Initialize the service provider by injecting it to a fake module's config block
+    var fakeModule = angular.module('testApp', function () {
+    });
+
+    fakeModule.config(function (_CQRSProvider_) {
+      CQRSProvider = _CQRSProvider_;
+    });
+
+    // Initialize ngCQRS module injector
+    angular.mock.module('ngCQRS', 'testApp');
+
+    // Kickstart the injectors previously registered with calls to angular.mock.module
+    inject(function () {
+    });
+  });
+
+  beforeEach(inject(function (_$rootScope_, _Store_, _$httpBackend_) {
+    Store = _Store_;
+    $rootScope = _$rootScope_;
+    $httpBackend = _$httpBackend_;
+  }));
+
+  beforeEach(function () {
+    CQRSProvider.setUrlFactory(function (dataId) {
+      return 'http://www.example.com/api/' + dataId;
+    });
+  });
+
+  describe('#get()', function () {
+
+    it('should throw error on invalid modelName', function () {
+      expect(function () {
+        Store.get(function () {
+        }, function () {
+        });
+      }).to.throwException();
+    });
+
+    it('should throw error on missing modelName', function () {
+      expect(function () {
+        Store.get(undefined, function () {
+        });
+      }).to.throwException();
+    });
+
+    it('should throw error on missing callback', function () {
+      expect(function () {
+        Store.get('myResource');
+      }).to.throwException();
+    });
+
+    it('should throw error on invalid callback', function () {
+      expect(function () {
+        Store.get('myResource', 'asdf');
+      }).to.throwException();
+    });
+
+    it('should invoke callback', function () {
+      var dummyDataId = '1234';
+
+      $httpBackend.expect('GET', 'http://www.example.com/api/1234').respond({
+        id: '1234',
+        attributeOne: 'attributeOneValue'
       });
 
-      fakeModule.config(function (_CQRSProvider_) {
-         CQRSProvider = _CQRSProvider_;
+      var response;
+      Store.get(dummyDataId, function (result) {
+        response = result;
       });
 
-      // Initialize ngCQRS module injector
-      angular.mock.module('ngCQRS', 'testApp');
+      $httpBackend.flush();
 
-      // Kickstart the injectors previously registered with calls to angular.mock.module
-      inject(function () {
+      expect(response.id).to.equal(dummyDataId);
+    });
+  });
+
+  describe('#clear()', function () {
+    it('should clear the store', function () {
+      Store.clear();
+    });
+  });
+
+  describe('#onEvent()', function () {
+    it('should notify all subscribed callbacks on new event', function () {
+      $httpBackend.when('GET', 'http://www.example.com/api/persons').respond({foo: 'bar'});
+
+      var callback1, callback2;
+      Store.get('persons', function (persons) {
+        callback1 = persons;
       });
-   });
-
-   beforeEach(inject(function (_$rootScope_, _Store_, _$httpBackend_) {
-      Store = _Store_;
-      $rootScope = _$rootScope_;
-      $httpBackend = _$httpBackend_;
-   }));
-
-   beforeEach(function () {
-      CQRSProvider.setUrlFactory(function (dataId) {
-         return 'http://www.example.com/api/' + dataId;
+      Store.get('persons', function (persons) {
+        callback2 = persons;
       });
-   });
 
-   describe('#get()', function () {
-      it('should invoke callback', function () {
-         var dummyDataId = '1234';
+      $httpBackend.flush();
 
-         $httpBackend.expect('GET', 'http://www.example.com/api/1234').respond({
-            id: '1234',
-            attributeOne: 'attributeOneValue'
-         });
+      var testPerson = {id: 123, name: 'marvin'};
+      var event = {viewModel: 'persons', eventName: 'update', payload: testPerson};
+      $rootScope.$emit('CQRS:events', event);
 
-         Store.get(dummyDataId, function (result) {
-            expect(result.id).to.equal(dummyDataId);
-         });
+      expect(callback1).to.be(testPerson);
+      expect(callback2).to.be(testPerson);
+    });
 
-         // call apply on the rootScope to trigger promise resolve
-         $rootScope.$apply();
+    it('should NOT notify callbacks on invalid event (missing resource identifier)', function () {
+      var initialQueryData = {foo: 'bar'};
+      $httpBackend.when('GET', 'http://www.example.com/api/persons').respond(initialQueryData);
+
+      var callback1, callback2;
+      Store.get('persons', function (persons) {
+        callback1 = persons;
       });
-   });
-
-   describe('#clear()', function () {
-      it('should clear the store', function () {
-         Store.clear();
+      Store.get('persons', function (persons) {
+        callback2 = persons;
       });
-   });
+
+      $httpBackend.flush();
+
+      var testPerson = {id: 123, name: 'marvin'};
+      var event = {eventName: 'update', payload: testPerson};
+      $rootScope.$emit('CQRS:events', event);
+
+      expect(callback1.foo).to.be(initialQueryData.foo);
+      expect(callback2.foo).to.be(initialQueryData.foo);
+    });
+
+    it('should NOT notify callbacks on invalid event (missing eventName)', function () {
+      var initialQueryData = {foo: 'bar'};
+      $httpBackend.when('GET', 'http://www.example.com/api/persons').respond(initialQueryData);
+
+      var callback1, callback2;
+      Store.get('persons', function (persons) {
+        callback1 = persons;
+      });
+      Store.get('persons', function (persons) {
+        callback2 = persons;
+      });
+
+      $httpBackend.flush();
+
+      var testPerson = {id: 123, name: 'marvin'};
+      var event = {viewModel: 'persons', payload: testPerson};
+      $rootScope.$emit('CQRS:events', event);
+
+      expect(callback1.foo).to.be(initialQueryData.foo);
+      expect(callback2.foo).to.be(initialQueryData.foo);
+    });
+
+    it('should NOT notify callbacks on invalid event (missing payload)', function () {
+      var initialQueryData = {foo: 'bar'};
+      $httpBackend.when('GET', 'http://www.example.com/api/persons').respond(initialQueryData);
+
+      var callback1 , callback2;
+      Store.get('persons', function (persons) {
+        callback1 = persons;
+      });
+      Store.get('persons', function (persons) {
+        callback2 = persons;
+      });
+
+      $httpBackend.flush();
+
+      var event = {viewModel: 'persons', eventName: 'update'};
+      $rootScope.$emit('CQRS:events', event);
+
+      expect(callback1.foo).to.be(initialQueryData.foo);
+      expect(callback2.foo).to.be(initialQueryData.foo);
+    });
+
+    it('should denormalize payload', function () {
+      //TODO: test denormalization
+    });
+
+  });
+
 
 });

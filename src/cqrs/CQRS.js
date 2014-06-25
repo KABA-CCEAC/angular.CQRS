@@ -29,14 +29,14 @@ angular.module('ngCQRS')
        * @description
        * Can be used to register a denormalization function for incoming events. Can be used to merge the change delta into the existing dataset on the client.
        */
-      this.registerDenormalizerFunctions = function (resource, eventName, denormalizerFunction) {
-        if(angular.isUndefined(denormalizerFunctions[resource])){
-          denormalizerFunctions[resource] = {};
+      this.registerDenormalizerFunctions = function (viewModel, eventName, denormalizerFunction) {
+        if(angular.isUndefined(denormalizerFunctions[viewModel])){
+          denormalizerFunctions[viewModel] = {};
         }
-        if(angular.isDefined(denormalizerFunctions[resource][eventName])){
-          throw 'Denormalizer function for resource "' + resource + '" and eventName "' + eventName + '" already defined.';
+        if(angular.isDefined(denormalizerFunctions[viewModel][eventName])){
+          throw 'Denormalizer function for viewModel "' + viewModel + '" and eventName "' + eventName + '" already defined.';
         }
-        denormalizerFunctions[resource][eventName] = denormalizerFunction;
+        denormalizerFunctions[viewModel][eventName] = denormalizerFunction;
       };
 
       /**
@@ -80,15 +80,12 @@ angular.module('ngCQRS')
           * @description
           *
           */
-         function sendCommand(commandName, payload) {
-            $rootScope.$emit('CQRS:commands', {
-               command: commandName,
-               payload: payload
-            });
+         function sendCommand(command) {
+            $rootScope.$emit('CQRS:commands', command);
          }
 
-        function denormalizerFunctionExists(resource, eventName){
-          return angular.isDefined(denormalizerFunctions[resource]) && angular.isDefined(denormalizerFunctions[resource][eventName]);
+        function denormalizerFunctionExists(viewModel, eventName){
+          return angular.isDefined(denormalizerFunctions[viewModel]) && angular.isDefined(denormalizerFunctions[viewModel][eventName]);
         }
 
         /**
@@ -100,8 +97,8 @@ angular.module('ngCQRS')
          *
          */
         function denormalize(event, originalData, delta) {
-          if(denormalizerFunctionExists(event.resource,event.eventName)){
-            var denormalizerFunction = denormalizerFunctions[event.resource][event.eventName];
+          if(denormalizerFunctionExists(event.viewModel,event.eventName)){
+            var denormalizerFunction = denormalizerFunctions[event.viewModel][event.eventName];
             return denormalizerFunction(originalData, delta);
           } else {
             return delta;

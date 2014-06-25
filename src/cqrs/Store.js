@@ -12,18 +12,18 @@ angular.module('ngCQRS')
       var store = {};
 
       function isValidDataModelUpdateEvent(evt) {
-         return ( angular.isDefined(evt.payload) && angular.isDefined(evt.eventName) && angular.isDefined(evt.resource));
+         return (angular.isDefined(evt.payload) && angular.isDefined(evt.eventName) && angular.isDefined(evt.viewModel));
       }
 
       function init() {
          // register for events and update our store with the new data
          CQRS.onEvent(function (evt) {
             if (isValidDataModelUpdateEvent(evt)) {
-               var storeItem = store[evt.resource];
+               var storeItem = store[evt.viewModel];
                if (angular.isDefined(storeItem)) {
                   storeItem.data = CQRS.denormalize(evt, storeItem.data, evt.payload);
                   storeItem.callbacks.forEach(function (callback) {
-                     callback(evt.payload);
+                     callback(storeItem.data);
                   });
                   $rootScope.$apply();
                }
