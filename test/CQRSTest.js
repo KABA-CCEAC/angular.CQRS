@@ -57,14 +57,15 @@ describe('CQRS', function () {
     });
 
     it('should emit rootScope event', function () {
-      var command = {resource: 'myResource', commandName: 'update', payload: {id: 123, name: 'marvin'}};
       var receivedCommand;
       $rootScope.$on('CQRS:commands', function (event, command) {
         receivedCommand = command;
       });
-      CQRS.sendCommand(command);
+      CQRS.sendCommand('myResource', 'update', {id: 123, name: 'marvin'});
 
-      expect(receivedCommand).to.be(command);
+      expect(receivedCommand.modelView).to.be('myResource');
+      expect(receivedCommand.commandName).to.be('update');
+      expect(receivedCommand.payload.id).to.be(123);
     });
 
   });
