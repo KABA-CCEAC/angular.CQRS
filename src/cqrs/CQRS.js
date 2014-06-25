@@ -9,17 +9,34 @@ angular.module('ngCQRS')
  * blubb
  */
    .provider('CQRS', function CQRS() {
+    var denormalizerFunctions = {};
 
-      var urlFactory = function () {
-         throw 'Please specify a urlFactory for CQRS queries. CQRSProvider.setUrlFactory(function (dataId) { .... }';
+    var urlFactory = function () {
+        throw 'Please specify a urlFactory for CQRS queries. CQRSProvider.setUrlFactory(function (dataId) { .... }';
       };
+
 
       this.setUrlFactory = function (urlFactoryFunction) {
          urlFactory = urlFactoryFunction;
       };
 
-      this.registerDenormalizer = function (dataId, eventName, denormalizerFunction) {
-
+      /**
+       * @ngdoc object
+       * @name ngCQRS.provider:CQRSProvider#registerDenormalizerFunctions
+       * @methodOf ngCQRS.provider:CQRSProvider
+       * @kind function
+       *
+       * @description
+       * Can be used to register a denormalization function for incoming events. Can be used to merge the change delta into the existing dataset on the client.
+       */
+      this.registerDenormalizerFunctions = function (resource, eventName, denormalizerFunction) {
+        if(angular.isUndefined(denormalizerFunctions[resource])){
+          denormalizerFunctions[resource] = {};
+        }
+        if(angular.isDefined(denormalizerFunctions[resource][eventName])){
+          throw 'Denormalizer function for resource "' + resource + '" and eventName "' + eventName + '" already defined.';
+        }
+        denormalizerFunctions[resource][eventName] = denormalizerFunction;
       };
 
       /**
@@ -70,7 +87,28 @@ angular.module('ngCQRS')
             });
          }
 
-         /**
+        function denormalizerFunctionExists(resource, eventName){
+          return angular.isDefined(denormalizerFunctions[resource]) && angular.isDefined(denormalizerFunctions[resource][eventName]);
+        }
+
+        /**
+         * @ngdoc function
+         * @name ngCQRS.service:CQRS#denormalize
+         * @methodOf ngCQRS.service:CQRS
+         *
+         * @description
+         *
+         */
+        function denormalize(event, originalData, delta) {
+          if(denormalizerFunctionExists(event.resource,event.eventName)){
+            var denormalizerFunction = denormalizerFunctions[event.resource][event.eventName];
+            return denormalizerFunction(originalData, delta);
+          } else {
+            return delta;
+          }
+        }
+
+        /**
           * @ngdoc function
           * @name ngCQRS.service:CQRS#onEvent
           * @methodOf ngCQRS.service:CQRS
@@ -116,7 +154,8 @@ angular.module('ngCQRS')
             sendCommand: sendCommand,
             onEvent: onEvent,
             onCommand: onCommand,
-            eventReceived: eventReceived
+            eventReceived: eventReceived,
+            denormalize: denormalize
          };
       };
 
