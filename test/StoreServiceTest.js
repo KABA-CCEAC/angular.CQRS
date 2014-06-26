@@ -1,6 +1,6 @@
 describe('StoreService', function () {
 
-  var CQRSProvider, StoreService, $rootScope, $httpBackend, dummyScope = {
+  var CQRSProvider, StoreService, DenormalizationService, $rootScope, $httpBackend, dummyScope = {
     $id: 1,
     $on: function () {
     }
@@ -23,10 +23,11 @@ describe('StoreService', function () {
     });
   });
 
-  beforeEach(inject(function (_$rootScope_, _StoreService_, _$httpBackend_) {
+  beforeEach(inject(function (_$rootScope_, _$httpBackend_,_StoreService_, _DenormalizationService_) {
     StoreService = _StoreService_;
     $rootScope = _$rootScope_;
     $httpBackend = _$httpBackend_;
+    DenormalizationService = _DenormalizationService_;
   }));
 
   beforeEach(function () {
@@ -35,31 +36,10 @@ describe('StoreService', function () {
     });
   });
 
-  describe('#registerDenormalizerFunction()', function () {
-    it('should register denormalizer function successfully', function () {
-      StoreService.registerDenormalizerFunction('myResource', 'myaggregateType', 'myEventName', function (originalData, delta) {
-        originalData[delta.id] = delta;
-        return originalData;
-      });
-    });
-
-    it('should not allow to register multiple functions for the same resource/event combination', function () {
-      StoreService.registerDenormalizerFunction('myResource', 'myaggregateType', 'myEventName', function () {
-        //foo
-      });
-
-      expect(function () {
-        StoreService.registerDenormalizerFunction('myResource', 'myaggregateType', 'myEventName', function () {
-          //foo
-        });
-      }).to.throwException();
-    });
-  });
-
   describe('#createForService()', function () {
     it('should register callback for service', function () {
 
-      StoreService.registerDenormalizerFunction('myProfile', 'person', 'move', function (oldData, payload) {
+      DenormalizationService.registerDenormalizerFunction('myProfile', 'person', 'move', function (oldData, payload) {
         return payload;
       });
 
@@ -88,7 +68,7 @@ describe('StoreService', function () {
     it('should correctly deregister viewModelName event callbacks', function () {
 
 
-      StoreService.registerDenormalizerFunction('myProfile', 'person', 'move', function (oldData, payload) {
+      DenormalizationService.registerDenormalizerFunction('myProfile', 'person', 'move', function (oldData, payload) {
         return payload;
       });
 
@@ -124,7 +104,7 @@ describe('StoreService', function () {
 
     it('should correctly deregister one callback for same viewModelName event', function () {
 
-      StoreService.registerDenormalizerFunction('myProfile', 'person', 'move', function (oldData, payload) {
+      DenormalizationService.registerDenormalizerFunction('myProfile', 'person', 'move', function (oldData, payload) {
         return payload;
       });
 
@@ -238,7 +218,7 @@ describe('StoreService', function () {
 
     it('should notify all subscribed callbacks on new event', function () {
 
-      StoreService.registerDenormalizerFunction('myProfile', 'person', 'move', function (oldData, payload) {
+      DenormalizationService.registerDenormalizerFunction('myProfile', 'person', 'move', function (oldData, payload) {
         return payload;
       });
 
@@ -329,7 +309,7 @@ describe('StoreService', function () {
 
     it('should not invoke denormalizer and callback on event with unknown viewModelName', function () {
       //Store.for('myProfile').do(... was not called
-      StoreService.registerDenormalizerFunction('myProfile', 'move', function () {
+      DenormalizationService.registerDenormalizerFunction('myProfile', 'move', function () {
         throw 'should not be invoked...';
       });
 
@@ -352,7 +332,7 @@ describe('StoreService', function () {
       $httpBackend.flush();
 
       var newAddress = {id: 123, street: 'Hauptweg'};
-      StoreService.registerDenormalizerFunction('myProfile', 'person', 'move', function (originalData, change) {
+      DenormalizationService.registerDenormalizerFunction('myProfile', 'person', 'move', function (originalData, change) {
         expect(originalData).to.eql(initialQueryData);
         expect(change).to.eql(newAddress);
         return change;

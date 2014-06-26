@@ -7,22 +7,12 @@ angular.module('ngCQRS')
  * @description
  * Used to obtain a {@link ngCQRS.service:Store Store} instance.
  */
-  .service('StoreService', function StoreService($rootScope, $q, $filter, $timeout, CQRS) {
+  .service('StoreService', function StoreService($rootScope, $q, $filter, $timeout, CQRS, DenormalizationService) {
 
-    var scopeCallbacks = {}, denormalizerFunctions = {};
+    var scopeCallbacks = {};
 
     function isValidDataModelUpdateEvent(evt) {
       return (angular.isDefined(evt.payload) && angular.isDefined(evt.name) && angular.isDefined(evt.aggregateType));
-    }
-
-    function getDenormalizerFunctions(aggregateType, eventName) {
-      if (angular.isUndefined(denormalizerFunctions[aggregateType])) {
-        return {};
-      }
-      if (angular.isUndefined(denormalizerFunctions[aggregateType][eventName])) {
-        return {};
-      }
-      return denormalizerFunctions[aggregateType][eventName];
     }
 
     function init() {
@@ -32,7 +22,7 @@ angular.module('ngCQRS')
           return;
         }
 
-        var denormalizerFunctions = getDenormalizerFunctions(evt.aggregateType, evt.name);
+        var denormalizerFunctions = DenormalizationService.getDenormalizerFunctions(evt.aggregateType, evt.name);
         angular.forEach(denormalizerFunctions, function (denormalizerFunction, viewModelName) {
           var scopeCallback = scopeCallbacks[viewModelName];
           if (angular.isDefined(scopeCallback)) {
@@ -47,36 +37,6 @@ angular.module('ngCQRS')
     }
 
     init();
-
-    /**
-     * @ngdoc object
-     * @name ngCQRS.service:StoreService#registerDenormalizerFunction
-     * @methodOf ngCQRS.service:StoreService
-     * @kind function
-     *
-     * @description
-     * Can be used to register a denormalization function for incoming events. Can be used to merge the change delta into the existing dataset on the client.
-     *
-     * Registering a denormalization function is optional. If no denormalizer is registered for a specifiv viewModelName and event combination, the event payload itself is passed to the {@link ngCQRS.service:Store#do do} callback.
-     *
-     * @param {string} viewModelName The viewModelName identifier
-     * @param {string} eventName The event identifier
-     * @param {function} denormalizerFunction The function used to merge (denormalized) event payload and original viewModelName data.
-     *    Angular.CQRS will pass in the original viewModelName data and the event payload.
-     *
-     */
-    function registerDenormalizerFunction(viewModelName, aggregateType, eventName, denormalizerFunction) {
-      if (angular.isUndefined(denormalizerFunctions[aggregateType])) {
-        denormalizerFunctions[aggregateType] = {};
-      }
-      if (angular.isUndefined(denormalizerFunctions[aggregateType][eventName])) {
-        denormalizerFunctions[aggregateType][eventName] = {};
-      }
-      if (angular.isDefined(denormalizerFunctions[aggregateType][eventName][viewModelName])) {
-        throw 'Denormalizer function for viewModelName "' + viewModelName + '", aggregateType: "' + aggregateType + '" and eventName "' + eventName + '" already defined.';
-      }
-      denormalizerFunctions[aggregateType][eventName][viewModelName] = denormalizerFunction;
-    }
 
     function throwErrorIfInvalidGetArguments(viewModelName, parameters, callback) {
       if (angular.isUndefined(parameters) || typeof parameters !== 'object') {
@@ -214,8 +174,7 @@ angular.module('ngCQRS')
 
     return {
       createForController: createForController,
-      createForService: createForService,
-      registerDenormalizerFunction: registerDenormalizerFunction
+      createForService: createForService
     };
 
   });
