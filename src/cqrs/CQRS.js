@@ -12,7 +12,7 @@ angular.module('ngCQRS')
 
 
     var urlFactory = function () {
-      throw 'Please specify a urlFactory for CQRS queries. CQRSProvider.setUrlFactory(function (modelView) { .... }';
+      throw 'Please specify a urlFactory for CQRS queries. CQRSProvider.setUrlFactory(function (viewModelName) { .... }';
     };
 
     /**
@@ -25,7 +25,7 @@ angular.module('ngCQRS')
      * Registers a url factory function that will be used to generate query URLs.
      *
      * @param {function} urlFactoryFunction The factory function.
-     *  Angular.CQRS will pass in the modelView identifier and url parameters.
+     *  Angular.CQRS will pass in the viewModelName identifier and url parameters.
      */
     this.setUrlFactory = function (urlFactoryFunction) {
       urlFactory = urlFactoryFunction;
@@ -56,17 +56,17 @@ angular.module('ngCQRS')
      * @name ngCQRS.service:CQRS
      *
      * @description
-     * Is used to send commands, receive queries and subscribe to events.
+     * Is used to send commands and define the specific channel over which messages will be sent.
      */
     this.$get = function ($q, $rootScope, $http) {
 
       /**
        * Send a HTTP GET request to the backend.
        * Use specified 'urlFactory' function to build URL.
-       * Note: generally you should use Store#get()
+       * Note: generally you should use Store#for()
        */
-      function query(viewModel, parameters) {
-        return $http.get(urlFactory(viewModel, parameters));
+      function query(viewModelName, parameters) {
+        return $http.get(urlFactory(viewModelName, parameters));
       }
 
       /**
@@ -75,19 +75,18 @@ angular.module('ngCQRS')
        * @methodOf ngCQRS.service:CQRS
        *
        * @description
+       * Sends a command using the function registered by {@link ngCQRS.service:CQRS#onCommand onCommand}
        *
+       * @param {string} aggregateType On which the command should be executed
+       * @param {string} commandName Name of the command
+       * @param {object} payload The event payload
        */
-      function sendCommand(modelView, commandName, payload) {
-        $rootScope.$emit('CQRS:commands', {modelView: modelView, commandName: commandName, payload: payload});
+      function sendCommand(aggregateType, commandName, payload) {
+        $rootScope.$emit('CQRS:commands', {aggregateType: aggregateType, name: commandName, payload: payload});
       }
 
       /**
-       * @ngdoc function
-       * @name ngCQRS.service:CQRS#onEvent
-       * @methodOf ngCQRS.service:CQRS
-       *
-       * @description
-       *
+       * Used to register a onEvent method in {@link ngCQRS.service:StoreService StoreService}
        */
       function onEvent(listener) {
         $rootScope.$on('CQRS:events', function (angularEvent, data) {
@@ -101,10 +100,12 @@ angular.module('ngCQRS')
        * @methodOf ngCQRS.service:CQRS
        *
        * @description
+       * Used to call Angular.CQRS from your application, i.e. if a specific websocket message arrived.
        *
+       * @param {object} event The received event
        */
-      function eventReceived(data) {
-        $rootScope.$emit('CQRS:events', data);
+      function eventReceived(event) {
+        $rootScope.$emit('CQRS:events', event);
       }
 
       /**
@@ -113,7 +114,9 @@ angular.module('ngCQRS')
        * @methodOf ngCQRS.service:CQRS
        *
        * @description
+       * Used to register a channel over which Angular.CQRS commands will be sent, i.e. websocket connection
        *
+       * @param {function} listener The function with which the command should be sent
        */
       function onCommand(listener) {
         $rootScope.$on('CQRS:commands', function (angularEvent, data) {

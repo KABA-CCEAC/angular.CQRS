@@ -37,19 +37,19 @@ describe('StoreService', function () {
 
   describe('#registerDenormalizerFunction()', function () {
     it('should register denormalizer function successfully', function () {
-      StoreService.registerDenormalizerFunction('myResource', 'myEventName', function (originalData, delta) {
+      StoreService.registerDenormalizerFunction('myResource', 'myaggregateType', 'myEventName', function (originalData, delta) {
         originalData[delta.id] = delta;
         return originalData;
       });
     });
 
     it('should not allow to register multiple functions for the same resource/event combination', function () {
-      StoreService.registerDenormalizerFunction('myResource', 'myEventName', function () {
+      StoreService.registerDenormalizerFunction('myResource', 'myaggregateType', 'myEventName', function () {
         //foo
       });
 
       expect(function () {
-        StoreService.registerDenormalizerFunction('myResource', 'myEventName', function () {
+        StoreService.registerDenormalizerFunction('myResource', 'myaggregateType', 'myEventName', function () {
           //foo
         });
       }).to.throwException();
@@ -58,8 +58,13 @@ describe('StoreService', function () {
 
   describe('#createForService()', function () {
     it('should register callback for service', function () {
+
+      StoreService.registerDenormalizerFunction('myProfile', 'person', 'move', function (oldData, payload) {
+        return payload;
+      });
+
       function simulateEvent() {
-        var event = {viewModel: 'myProfile', eventName: 'move', payload: {}};
+        var event = {aggregateType: 'person', name: 'move', payload: {}};
         $rootScope.$emit('CQRS:events', event);
       }
 
@@ -80,10 +85,16 @@ describe('StoreService', function () {
 
   describe('#createForController()', function () {
 
-    it('should correctly deregister modelView event callbacks', function () {
+    it('should correctly deregister viewModelName event callbacks', function () {
+
+
+      StoreService.registerDenormalizerFunction('myProfile', 'person', 'move', function (oldData, payload) {
+        return payload;
+      });
+
 
       function simulateEvent() {
-        var event = {viewModel: 'myProfile', eventName: 'move', payload: {}};
+        var event = {aggregateType: 'person', name: 'move', payload: {}};
         $rootScope.$emit('CQRS:events', event);
       }
 
@@ -111,10 +122,15 @@ describe('StoreService', function () {
     });
 
 
-    it('should correctly deregister one callback for same modelView event', function () {
+    it('should correctly deregister one callback for same viewModelName event', function () {
+
+      StoreService.registerDenormalizerFunction('myProfile', 'person', 'move', function (oldData, payload) {
+        return payload;
+      });
+
 
       function simulateEvent() {
-        var event = {viewModel: 'myProfile', eventName: 'move', payload: {}};
+        var event = {aggregateType: 'person', name: 'move', payload: {}};
         $rootScope.$emit('CQRS:events', event);
       }
 
@@ -221,6 +237,11 @@ describe('StoreService', function () {
     });
 
     it('should notify all subscribed callbacks on new event', function () {
+
+      StoreService.registerDenormalizerFunction('myProfile', 'person', 'move', function (oldData, payload) {
+        return payload;
+      });
+
       $httpBackend.when('GET', 'http://www.example.com/api/myProfile').respond({foo: 'bar'});
 
       var callback1, callback2;
@@ -234,7 +255,7 @@ describe('StoreService', function () {
       $httpBackend.flush();
 
       var newAddress = {id: 123, street: 'Hauptweg'};
-      var event = {viewModel: 'myProfile', eventName: 'move', payload: newAddress};
+      var event = {aggregateType: 'person', name: 'move', payload: newAddress};
       $rootScope.$emit('CQRS:events', event);
 
       expect(callback1).to.be(newAddress);
@@ -306,7 +327,7 @@ describe('StoreService', function () {
       expect(callback2.foo).to.be(initialQueryData.foo);
     });
 
-    it('should not invoke denormalizer and callback on event with unknown modelView', function () {
+    it('should not invoke denormalizer and callback on event with unknown viewModelName', function () {
       //Store.for('myProfile').do(... was not called
       StoreService.registerDenormalizerFunction('myProfile', 'move', function () {
         throw 'should not be invoked...';
@@ -319,27 +340,28 @@ describe('StoreService', function () {
     });
 
     it('should invoke denormalizer and callback correctly on event', function () {
+
       var initialQueryData = {foo: 'bar'};
       $httpBackend.when('GET', 'http://www.example.com/api/myProfile').respond(initialQueryData);
 
       var store = StoreService.createForService();
       var callbackData = [];
-      store.for('myProfile').do(function(data){
+      store.for('myProfile').do(function (data) {
         callbackData.push(data);
       });
       $httpBackend.flush();
 
       var newAddress = {id: 123, street: 'Hauptweg'};
-      StoreService.registerDenormalizerFunction('myProfile', 'move', function (originalData, change) {
+      StoreService.registerDenormalizerFunction('myProfile', 'person', 'move', function (originalData, change) {
         expect(originalData).to.eql(initialQueryData);
         expect(change).to.eql(newAddress);
         return change;
       });
 
-      var event = {viewModel: 'myProfile', eventName: 'move', payload: newAddress};
+      var event = {aggregateType: 'person', name: 'move', payload: newAddress};
       $rootScope.$emit('CQRS:events', event);
 
-      expect(callbackData).to.eql([initialQueryData,newAddress]);
+      expect(callbackData).to.eql([initialQueryData, newAddress]);
     });
 
 
