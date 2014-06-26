@@ -1,6 +1,10 @@
-describe('Store', function () {
+describe('StoreService', function () {
 
-  var CQRSProvider, Store, $rootScope, $httpBackend;
+  var CQRSProvider, StoreService, $rootScope, $httpBackend, dummyScope = {
+    $id: 1,
+    $on: function () {
+    }
+  };
 
   beforeEach(function () {
     // Initialize the service provider by injecting it to a fake module's config block
@@ -19,8 +23,8 @@ describe('Store', function () {
     });
   });
 
-  beforeEach(inject(function (_$rootScope_, _Store_, _$httpBackend_) {
-    Store = _Store_;
+  beforeEach(inject(function (_$rootScope_, _StoreService_, _$httpBackend_) {
+    StoreService = _StoreService_;
     $rootScope = _$rootScope_;
     $httpBackend = _$httpBackend_;
   }));
@@ -31,48 +35,143 @@ describe('Store', function () {
     });
   });
 
-  describe('#get()', function () {
+
+  describe('#createForService()', function () {
+    it('should register callback for service', function () {
+      function simulateEvent() {
+        var event = {viewModel: 'myProfile', eventName: 'move', payload: {}};
+        $rootScope.$emit('CQRS:events', event);
+      }
+
+      var invokeCounter = 0;
+      var store = StoreService.createForService();
+
+      $httpBackend.when('GET', 'http://www.example.com/api/myProfile').respond({foo: 'bar'});
+      store.for('myProfile').do(function () {
+        invokeCounter++;
+      });
+
+      $httpBackend.flush();
+
+      simulateEvent();
+      expect(invokeCounter).to.be(2);
+    });
+  });
+
+  describe('#createForController()', function () {
+
+    it('should correctly deregister modelView event callbacks', function () {
+
+      function simulateEvent() {
+        var event = {viewModel: 'myProfile', eventName: 'move', payload: {}};
+        $rootScope.$emit('CQRS:events', event);
+      }
+
+      var scopeEventHandlerFunction;
+      var invokeCounter = 0;
+      var store = StoreService.createForController({
+        $id: 2,
+        $on: function (name, callback) {
+          scopeEventHandlerFunction = callback;
+        }
+      });
+
+      $httpBackend.when('GET', 'http://www.example.com/api/myProfile').respond({foo: 'bar'});
+      store.for('myProfile').do(function () {
+        invokeCounter++;
+      });
+
+      $httpBackend.flush();
+
+      simulateEvent();
+      expect(invokeCounter).to.be(2);
+      scopeEventHandlerFunction({currentScope: {$id: 2}});
+      simulateEvent();
+      expect(invokeCounter).to.be(2);
+    });
+
+
+    it('should correctly deregister one callback for same modelView event', function () {
+
+      function simulateEvent() {
+        var event = {viewModel: 'myProfile', eventName: 'move', payload: {}};
+        $rootScope.$emit('CQRS:events', event);
+      }
+
+      var scopeEventHandlerFunction;
+      var invokeCounterOne = 0, invokeCounterTwo = 0;
+      var storeOne = StoreService.createForController({
+        $id: 2,
+        $on: function (name, callback) {
+          scopeEventHandlerFunction = callback;
+        }
+      });
+      var storeTwo = StoreService.createForController({
+        $id: 5,
+        $on: function (name, callback) {
+          scopeEventHandlerFunction = callback;
+        }
+      });
+
+      $httpBackend.when('GET', 'http://www.example.com/api/myProfile').respond({foo: 'bar'});
+      storeOne.for('myProfile').do(function () {
+        invokeCounterOne++;
+      });
+      storeTwo.for('myProfile').do(function () {
+        invokeCounterTwo++;
+      });
+      $httpBackend.flush();
+
+      simulateEvent();
+      expect(invokeCounterOne).to.be(2);
+      expect(invokeCounterTwo).to.be(2);
+      scopeEventHandlerFunction({currentScope: {$id: 2}});
+      simulateEvent();
+      expect(invokeCounterOne).to.be(2);
+      expect(invokeCounterTwo).to.be(3);
+    });
+
+  });
+
+  describe('#store#for()', function () {
+    var store;
+
+    beforeEach(function () {
+      store = StoreService.createForController(dummyScope);
+    });
 
     it('should throw error on invalid modelName', function () {
       expect(function () {
-        Store.get(function () {
-        }, {}, function () {
+        store.for(function () {
+        }, {}).do(function () {
         });
       }).to.throwException();
     });
 
     it('should throw error on missing modelName', function () {
       expect(function () {
-        Store.get(undefined, {}, function () {
+        store.for(undefined, {}).do(function () {
         });
-      }).to.throwException();
-    });
-
-    it('should throw error on missing callback', function () {
-      expect(function () {
-        Store.get('myResource', {});
       }).to.throwException();
     });
 
     it('should throw error on invalid callback', function () {
       expect(function () {
-        Store.get('myResource', {}, 'asdf');
+        store.for('myResource', {}).do('asdf');
       }).to.throwException();
     });
 
     it('should throw error on invalid parameters object', function () {
       expect(function () {
-        Store.get('myResource', function () {
-        }, function () {
+        store.for('myResource', function () {
+        }).do(function () {
         });
       }).to.throwException();
     });
 
-    it('should throw error on udefined parameters object', function () {
-      expect(function () {
-        Store.get('myResource', undefined, function () {
-        });
-      }).to.throwException();
+    it('should allow undefined parameters object', function () {
+      store.for('myResource', undefined).do(function () {
+      });
     });
 
     it('should invoke callback', function () {
@@ -84,7 +183,7 @@ describe('Store', function () {
       });
 
       var response;
-      Store.get(dummyDataId, {}, function (result) {
+      store.for(dummyDataId, {}).do(function (result) {
         response = result;
       });
 
@@ -94,21 +193,21 @@ describe('Store', function () {
     });
   });
 
-  describe('#clear()', function () {
-    it('should clear the store', function () {
-      Store.clear();
-    });
-  });
-
   describe('#onEvent()', function () {
+    var store;
+
+    beforeEach(function () {
+      store = StoreService.createForController(dummyScope);
+    });
+
     it('should notify all subscribed callbacks on new event', function () {
       $httpBackend.when('GET', 'http://www.example.com/api/myProfile').respond({foo: 'bar'});
 
       var callback1, callback2;
-      Store.get('myProfile', {}, function (persons) {
+      store.for('myProfile', {}).do(function (persons) {
         callback1 = persons;
       });
-      Store.get('myProfile', {}, function (persons) {
+      store.for('myProfile', {}).do(function (persons) {
         callback2 = persons;
       });
 
@@ -127,10 +226,10 @@ describe('Store', function () {
       $httpBackend.when('GET', 'http://www.example.com/api/myProfile').respond(initialQueryData);
 
       var callback1, callback2;
-      Store.get('myProfile', {}, function (persons) {
+      store.for('myProfile', {}).do(function (persons) {
         callback1 = persons;
       });
-      Store.get('myProfile', {}, function (persons) {
+      store.for('myProfile', {}).do(function (persons) {
         callback2 = persons;
       });
 
@@ -149,10 +248,10 @@ describe('Store', function () {
       $httpBackend.when('GET', 'http://www.example.com/api/myProfile').respond(initialQueryData);
 
       var callback1, callback2;
-      Store.get('myProfile', {}, function (persons) {
+      store.for('myProfile', {}).do(function (persons) {
         callback1 = persons;
       });
-      Store.get('myProfile', {}, function (persons) {
+      store.for('myProfile', {}).do(function (persons) {
         callback2 = persons;
       });
 
@@ -171,10 +270,10 @@ describe('Store', function () {
       $httpBackend.when('GET', 'http://www.example.com/api/myProfile').respond(initialQueryData);
 
       var callback1 , callback2;
-      Store.get('myProfile', {}, function (persons) {
+      store.for('myProfile', {}).do(function (persons) {
         callback1 = persons;
       });
-      Store.get('myProfile', {}, function (persons) {
+      store.for('myProfile', {}).do(function (persons) {
         callback2 = persons;
       });
 

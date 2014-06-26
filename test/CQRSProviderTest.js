@@ -31,7 +31,11 @@ describe('CQRSProvider', function () {
   describe('#toUrlGETParameterString()', function () {
     it('should build valid url GET parameter string', function () {
       var buildString = CQRSProvider.toUrlGETParameterString({one: '1', 2: 'two'});
-      expect(buildString).to.be('?one=1&2=two');
+
+      expect(buildString.charAt(0)).to.be('?');
+      expect(buildString).to.contain('one=1');
+      expect(buildString).to.contain('2=two');
+      expect(buildString).to.contain('&');
     });
   });
 
