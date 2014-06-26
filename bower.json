@@ -1,17 +1,25 @@
 {
-   "name": "angular.CQRS",
-   "version": "0.0.1",
-   "author": "xeronimus",
-   "ignore": [
-      "docs",
-      "test",
-      "example"
-   ],
-   "dependencies": {
+  "name": "angular.CQRS",
+  "version": "0.1",
+  "author": "KABA-CCEAC",
+  "main": "./dist/angular.cqrs.js",
+  "ignore": [
+    "docs",
+    "test",
+    "example",
+    "eslintrules",
+    "Gruntfile.js",
+    "karma.conf.js",
+    "package.js",
+    "package.json",
+    "**/.*",
+    "**/*.html"
+  ],
+  "dependencies": {
 
-   },
-   "devDependencies": {
-      "angular-mocks": "~1.2.18",
-      "angular": "~1.2.18"
-   }
+  },
+  "devDependencies": {
+    "angular-mocks": "~1.2.18",
+    "angular": "~1.2.18"
+  }
 }

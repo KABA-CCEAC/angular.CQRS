@@ -3,7 +3,7 @@
 Project goal is to simplify the usage of the CQRS Pattern under AngularJS by 
 providing needed infrastructure.
 
-
+Tested with AngularJS 1.2.18
 
 
 
