@@ -6,15 +6,14 @@ angular.module('ngCQRS')
  * @kind function
  *
  * @description
- * Handles the configuration of the CQRS connection.
+ * Handles the configuration of the CQRS module.
  */
   .provider('CQRS', function CQRS() {
-    var denormalizerFunctions = {};
+
 
     var urlFactory = function () {
-      throw 'Please specify a urlFactory for CQRS queries. CQRSProvider.setUrlFactory(function (dataId) { .... }';
+      throw 'Please specify a urlFactory for CQRS queries. CQRSProvider.setUrlFactory(function (modelView) { .... }';
     };
-
 
     /**
      * @ngdoc object
@@ -23,29 +22,13 @@ angular.module('ngCQRS')
      * @kind function
      *
      * @description
-     * Register url factory function that generates query URL.
+     * Registers a url factory function that will be used to generate query URLs.
+     *
+     * @param {function} urlFactoryFunction The factory function.
+     *  Angular.CQRS will pass in the modelView identifier and url parameters.
      */
     this.setUrlFactory = function (urlFactoryFunction) {
       urlFactory = urlFactoryFunction;
-    };
-
-    /**
-     * @ngdoc object
-     * @name ngCQRS.provider:CQRSProvider#registerDenormalizerFunctions
-     * @methodOf ngCQRS.provider:CQRSProvider
-     * @kind function
-     *
-     * @description
-     * Can be used to register a denormalization function for incoming events. Can be used to merge the change delta into the existing dataset on the client.
-     */
-    this.registerDenormalizerFunctions = function (viewModel, eventName, denormalizerFunction) {
-      if (angular.isUndefined(denormalizerFunctions[viewModel])) {
-        denormalizerFunctions[viewModel] = {};
-      }
-      if (angular.isDefined(denormalizerFunctions[viewModel][eventName])) {
-        throw 'Denormalizer function for viewModel "' + viewModel + '" and eventName "' + eventName + '" already defined.';
-      }
-      denormalizerFunctions[viewModel][eventName] = denormalizerFunction;
     };
 
     /**
@@ -55,7 +38,9 @@ angular.module('ngCQRS')
      * @kind function
      *
      * @description
+     *  Generates a url parameter string in the form '?paramNameOne=paramOne&paramNameTwo=paramTwo'
      *
+     *  @param {object} parameters The url parameters object
      */
     this.toUrlGETParameterString = function (parameters) {
       var buffer = [];
@@ -76,15 +61,9 @@ angular.module('ngCQRS')
     this.$get = function ($q, $rootScope, $http) {
 
       /**
-       * @ngdoc function
-       * @name ngCQRS.service:CQRS#query
-       * @methodOf ngCQRS.service:CQRS
-       *
-       * @description
        * Send a HTTP GET request to the backend.
        * Use specified 'urlFactory' function to build URL.
        * Note: generally you should use Store#get()
-       *
        */
       function query(viewModel, parameters) {
         return $http.get(urlFactory(viewModel, parameters));
@@ -100,27 +79,6 @@ angular.module('ngCQRS')
        */
       function sendCommand(modelView, commandName, payload) {
         $rootScope.$emit('CQRS:commands', {modelView: modelView, commandName: commandName, payload: payload});
-      }
-
-      function denormalizerFunctionExists(viewModel, eventName) {
-        return angular.isDefined(denormalizerFunctions[viewModel]) && angular.isDefined(denormalizerFunctions[viewModel][eventName]);
-      }
-
-      /**
-       * @ngdoc function
-       * @name ngCQRS.service:CQRS#denormalize
-       * @methodOf ngCQRS.service:CQRS
-       *
-       * @description
-       *
-       */
-      function denormalize(event, originalData, change) {
-        if (denormalizerFunctionExists(event.viewModel, event.eventName)) {
-          var denormalizerFunction = denormalizerFunctions[event.viewModel][event.eventName];
-          return denormalizerFunction(originalData, change);
-        } else {
-          return change;
-        }
       }
 
       /**
@@ -163,14 +121,12 @@ angular.module('ngCQRS')
         });
       }
 
-
       return {
         query: query,
         sendCommand: sendCommand,
         onEvent: onEvent,
         onCommand: onCommand,
-        eventReceived: eventReceived,
-        denormalize: denormalize
+        eventReceived: eventReceived
       };
     };
 

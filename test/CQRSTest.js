@@ -143,31 +143,6 @@ describe('CQRS', function () {
       });
 
     });
-
-    describe('#denormalize()', function () {
-
-      beforeEach(function () {
-        CQRSProvider.registerDenormalizerFunctions('myResource', 'myEventName', function (originalData, delta) {
-          if (angular.isDefined(originalData) && angular.isDefined(delta)) {
-            return 'success';
-          }
-        });
-      });
-
-      it('should denormalize with registered function', function () {
-        var origData = {id: 22, name: 'sergio'};
-        var testEvent = {viewModel: 'myResource', eventName: 'myEventName', payload: {id: 22, name: 'marvin'}};
-        expect(CQRS.denormalize(testEvent, origData, testEvent.payload)).to.be('success');
-      });
-
-      it('should return delta if no denormalizer function found', function () {
-        var origData = {id: 22, name: 'sergio'};
-        var testEvent = {resource: 'myResource', eventName: 'myOtherEvent', payload: {id: 22, name: 'marvin'}};
-        expect(CQRS.denormalize(testEvent, origData, testEvent.payload)).to.be(testEvent.payload);
-      });
-
-    });
-
   });
 
 });

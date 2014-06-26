@@ -39,25 +39,4 @@ describe('CQRSProvider', function () {
     });
   });
 
-  describe('#registerDenormalizerFunctions()', function () {
-    it('should register denormalizer function successfully', function () {
-      CQRSProvider.registerDenormalizerFunctions('myResource', 'myEventName', function (originalData, delta) {
-        originalData[delta.id] = delta;
-        return originalData;
-      });
-    });
-
-    it('should not allow to register multiple functions for the same resource/event combination', function () {
-      CQRSProvider.registerDenormalizerFunctions('myResource', 'myEventName', function () {
-        //foo
-      });
-
-      expect(function () {
-        CQRSProvider.registerDenormalizerFunctions('myResource', 'myEventName', function () {
-          //foo
-        });
-      }).to.throwException();
-    });
-  });
-
 });
