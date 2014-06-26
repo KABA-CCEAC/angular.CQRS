@@ -26,8 +26,8 @@ describe('Store', function () {
   }));
 
   beforeEach(function () {
-    CQRSProvider.setUrlFactory(function (dataId) {
-      return 'http://www.example.com/api/' + dataId;
+    CQRSProvider.setUrlFactory(function (modelView) {
+      return 'http://www.example.com/api/' + modelView;
     });
   });
 
@@ -36,27 +36,42 @@ describe('Store', function () {
     it('should throw error on invalid modelName', function () {
       expect(function () {
         Store.get(function () {
-        }, function () {
+        }, {}, function () {
         });
       }).to.throwException();
     });
 
     it('should throw error on missing modelName', function () {
       expect(function () {
-        Store.get(undefined, function () {
+        Store.get(undefined, {}, function () {
         });
       }).to.throwException();
     });
 
     it('should throw error on missing callback', function () {
       expect(function () {
-        Store.get('myResource');
+        Store.get('myResource', {});
       }).to.throwException();
     });
 
     it('should throw error on invalid callback', function () {
       expect(function () {
-        Store.get('myResource', 'asdf');
+        Store.get('myResource', {}, 'asdf');
+      }).to.throwException();
+    });
+
+    it('should throw error on invalid parameters object', function () {
+      expect(function () {
+        Store.get('myResource', function () {
+        }, function () {
+        });
+      }).to.throwException();
+    });
+
+    it('should throw error on udefined parameters object', function () {
+      expect(function () {
+        Store.get('myResource', undefined, function () {
+        });
       }).to.throwException();
     });
 
@@ -69,7 +84,7 @@ describe('Store', function () {
       });
 
       var response;
-      Store.get(dummyDataId, function (result) {
+      Store.get(dummyDataId, {}, function (result) {
         response = result;
       });
 
@@ -87,42 +102,42 @@ describe('Store', function () {
 
   describe('#onEvent()', function () {
     it('should notify all subscribed callbacks on new event', function () {
-      $httpBackend.when('GET', 'http://www.example.com/api/persons').respond({foo: 'bar'});
+      $httpBackend.when('GET', 'http://www.example.com/api/myProfile').respond({foo: 'bar'});
 
       var callback1, callback2;
-      Store.get('persons', function (persons) {
+      Store.get('myProfile', {}, function (persons) {
         callback1 = persons;
       });
-      Store.get('persons', function (persons) {
+      Store.get('myProfile', {}, function (persons) {
         callback2 = persons;
       });
 
       $httpBackend.flush();
 
-      var testPerson = {id: 123, name: 'marvin'};
-      var event = {viewModel: 'persons', eventName: 'update', payload: testPerson};
+      var newAddress = {id: 123, street: 'Hauptweg'};
+      var event = {viewModel: 'myProfile', eventName: 'move', payload: newAddress};
       $rootScope.$emit('CQRS:events', event);
 
-      expect(callback1).to.be(testPerson);
-      expect(callback2).to.be(testPerson);
+      expect(callback1).to.be(newAddress);
+      expect(callback2).to.be(newAddress);
     });
 
     it('should NOT notify callbacks on invalid event (missing resource identifier)', function () {
       var initialQueryData = {foo: 'bar'};
-      $httpBackend.when('GET', 'http://www.example.com/api/persons').respond(initialQueryData);
+      $httpBackend.when('GET', 'http://www.example.com/api/myProfile').respond(initialQueryData);
 
       var callback1, callback2;
-      Store.get('persons', function (persons) {
+      Store.get('myProfile', {}, function (persons) {
         callback1 = persons;
       });
-      Store.get('persons', function (persons) {
+      Store.get('myProfile', {}, function (persons) {
         callback2 = persons;
       });
 
       $httpBackend.flush();
 
-      var testPerson = {id: 123, name: 'marvin'};
-      var event = {eventName: 'update', payload: testPerson};
+      var newAddress = {id: 123, street: 'Hauptweg'};
+      var event = {eventName: 'move', payload: newAddress};
       $rootScope.$emit('CQRS:events', event);
 
       expect(callback1.foo).to.be(initialQueryData.foo);
@@ -131,20 +146,20 @@ describe('Store', function () {
 
     it('should NOT notify callbacks on invalid event (missing eventName)', function () {
       var initialQueryData = {foo: 'bar'};
-      $httpBackend.when('GET', 'http://www.example.com/api/persons').respond(initialQueryData);
+      $httpBackend.when('GET', 'http://www.example.com/api/myProfile').respond(initialQueryData);
 
       var callback1, callback2;
-      Store.get('persons', function (persons) {
+      Store.get('myProfile', {}, function (persons) {
         callback1 = persons;
       });
-      Store.get('persons', function (persons) {
+      Store.get('myProfile', {}, function (persons) {
         callback2 = persons;
       });
 
       $httpBackend.flush();
 
-      var testPerson = {id: 123, name: 'marvin'};
-      var event = {viewModel: 'persons', payload: testPerson};
+      var newAddress = {id: 123, street: 'Hauptweg'};
+      var event = {viewModel: 'myProfile', payload: newAddress};
       $rootScope.$emit('CQRS:events', event);
 
       expect(callback1.foo).to.be(initialQueryData.foo);
@@ -153,28 +168,37 @@ describe('Store', function () {
 
     it('should NOT notify callbacks on invalid event (missing payload)', function () {
       var initialQueryData = {foo: 'bar'};
-      $httpBackend.when('GET', 'http://www.example.com/api/persons').respond(initialQueryData);
+      $httpBackend.when('GET', 'http://www.example.com/api/myProfile').respond(initialQueryData);
 
       var callback1 , callback2;
-      Store.get('persons', function (persons) {
+      Store.get('myProfile', {}, function (persons) {
         callback1 = persons;
       });
-      Store.get('persons', function (persons) {
+      Store.get('myProfile', {}, function (persons) {
         callback2 = persons;
       });
 
       $httpBackend.flush();
 
-      var event = {viewModel: 'persons', eventName: 'update'};
+      var event = {viewModel: 'myProfile', eventName: 'move'};
       $rootScope.$emit('CQRS:events', event);
 
       expect(callback1.foo).to.be(initialQueryData.foo);
       expect(callback2.foo).to.be(initialQueryData.foo);
     });
 
-    it('should denormalize payload', function () {
-      //TODO: test denormalization
+    it('should not invoke denormalizer and callback on event with unknown modelView', function () {
+
+      CQRSProvider.registerDenormalizerFunctions('myProfile', 'move', function () {
+        throw 'should not be invoked...';
+      });
+
+      var newAddress = {id: 123, street: 'Hauptweg'};
+      var event = {viewModel: 'myProfile', eventName: 'move', payload: newAddress};
+      $rootScope.$emit('CQRS:events', event);
+
     });
+
 
   });
 

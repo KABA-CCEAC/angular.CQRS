@@ -33,7 +33,10 @@ angular.module('ngCQRS')
 
     init();
 
-    function throwErrorIfInvalidGetArguments(modelName, callback) {
+    function throwErrorIfInvalidGetArguments(modelName, parameters, callback) {
+      if (angular.isUndefined(parameters) || typeof parameters !== 'object') {
+        throw 'Please provide a valid parameters object!';
+      }
       if (angular.isUndefined(modelName) || typeof modelName !== 'string') {
         throw 'Please provide a valid model Name (string)!';
       }
@@ -60,13 +63,13 @@ angular.module('ngCQRS')
      * @description
      *  Queries the server for the required model. Will update given Scope on server events
      */
-    function get(modelName, callback) {
-      throwErrorIfInvalidGetArguments(modelName, callback);
+    function get(modelName, parameters, callback) {
+      throwErrorIfInvalidGetArguments(modelName, parameters, callback);
 
       // TODO:  should the server be queried every time ?
       // or should this method return a reference to the data that is already in the store (matching the given modelName)
 
-      var queryPromise = CQRS.query(modelName);
+      var queryPromise = CQRS.query(modelName, parameters);
       queryPromise.then(function (result) {
         handleQueryResponse(result.data, modelName, callback);
       });

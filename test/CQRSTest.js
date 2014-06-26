@@ -25,135 +25,147 @@ describe('CQRS', function () {
     $rootScope = _$rootScope_;
   }));
 
-
-  beforeEach(function () {
-    CQRSProvider.setUrlFactory(function (dataId) {
-      return 'http://www.example.com/api/' + dataId;
-    });
-  });
-
-  describe('#query()', function () {
-
-    it('should not be undefined', function () {
-      expect(CQRS).not.to.be(undefined);
-      expect(CQRS.query).not.to.be(undefined);
-    });
-
-    it('should call defined url', function () {
-      var data = {id: 123, name: 'marvin'};
-      $httpBackend.expectGET('http://www.example.com/api/myResource').respond(data);
-      var response = CQRS.query('myResource');
-      $httpBackend.flush();
-      expect(response).to.equal(data);
-    });
-
-  });
-
-  describe('#sendCommand()', function () {
-
-    it('should not be undefined', function () {
-      expect(CQRS).not.to.be(undefined);
-      expect(CQRS.sendCommand).not.to.be(undefined);
-    });
-
-    it('should emit rootScope event', function () {
-      var receivedCommand;
-      $rootScope.$on('CQRS:commands', function (event, command) {
-        receivedCommand = command;
+  describe('with invalid url factory', function () {
+    describe('#query()', function () {
+      it('should throw an error, since no url factory function is registered', function () {
+        expect(function () {
+          CQRS.query({}, {});
+        }).to.throwException();
       });
-      CQRS.sendCommand('myResource', 'update', {id: 123, name: 'marvin'});
-
-      expect(receivedCommand.modelView).to.be('myResource');
-      expect(receivedCommand.commandName).to.be('update');
-      expect(receivedCommand.payload.id).to.be(123);
     });
-
   });
 
-  describe('#onCommand()', function () {
-
-    it('should not be undefined', function () {
-      expect(CQRS).not.to.be(undefined);
-      expect(CQRS.onCommand).not.to.be(undefined);
+  describe('with valid url factory', function () {
+    beforeEach(function () {
+      CQRSProvider.setUrlFactory(function (modelView, parameters) {
+        return 'http://www.example.com/api/' + modelView + CQRSProvider.toUrlGETParameterString(parameters);
+      });
     });
 
-    it('should register listener and call listener on CQRS.commands event', function () {
-      var success = false;
-      var listener = function () {
-        success = true;
-      };
-      CQRS.onCommand(listener);
+    describe('#query()', function () {
 
-      $rootScope.$emit('CQRS:commands', {});
-
-      expect(success).to.be(true);
-    });
-
-  });
-
-  describe('#eventReceived()', function () {
-
-    it('should not be undefined', function () {
-      expect(CQRS).not.to.be(undefined);
-      expect(CQRS.eventReceived).not.to.be(undefined);
-    });
-
-    it('should emit data', function () {
-      var event = {resource: 'myResource', commandName: 'update', payload: {id: 123, name: 'marvin'}};
-
-      var receivedEvent;
-      $rootScope.$on('CQRS:events', function (angularEvent, event) {
-        receivedEvent = event;
+      it('should not be undefined', function () {
+        expect(CQRS).not.to.be(undefined);
+        expect(CQRS.query).not.to.be(undefined);
       });
 
-      CQRS.eventReceived(event);
+      it('should call defined url', function () {
+        var data = {id: 123, name: 'marvin'};
+        $httpBackend.expectGET('http://www.example.com/api/myResource?filter=something').respond(data);
+        var response = CQRS.query('myResource', {filter: 'something'});
+        $httpBackend.flush();
+        expect(response).to.equal(data);
+      });
 
-      expect(receivedEvent).to.be(event);
     });
 
-  });
+    describe('#sendCommand()', function () {
 
-  describe('#onEvent()', function () {
+      it('should not be undefined', function () {
+        expect(CQRS).not.to.be(undefined);
+        expect(CQRS.sendCommand).not.to.be(undefined);
+      });
 
-    it('should not be undefined', function () {
-      expect(CQRS).not.to.be(undefined);
-      expect(CQRS.onEvent).not.to.be(undefined);
+      it('should emit rootScope event', function () {
+        var receivedCommand;
+        $rootScope.$on('CQRS:commands', function (event, command) {
+          receivedCommand = command;
+        });
+        CQRS.sendCommand('myResource', 'update', {id: 123, name: 'marvin'});
+
+        expect(receivedCommand.modelView).to.be('myResource');
+        expect(receivedCommand.commandName).to.be('update');
+        expect(receivedCommand.payload.id).to.be(123);
+      });
+
     });
 
-    it('should register listener and call listener on CQRS.events event', function () {
-      var success = false;
-      var listener = function () {
-        success = true;
-      };
-      CQRS.onEvent(listener);
+    describe('#onCommand()', function () {
 
-      $rootScope.$emit('CQRS:events', {});
+      it('should not be undefined', function () {
+        expect(CQRS).not.to.be(undefined);
+        expect(CQRS.onCommand).not.to.be(undefined);
+      });
 
-      expect(success).to.be(true);
+      it('should register listener and call listener on CQRS.commands event', function () {
+        var success = false;
+        var listener = function () {
+          success = true;
+        };
+        CQRS.onCommand(listener);
+
+        $rootScope.$emit('CQRS:commands', {});
+
+        expect(success).to.be(true);
+      });
+
     });
 
-  });
+    describe('#eventReceived()', function () {
 
-  beforeEach(function () {
-    CQRSProvider.registerDenormalizerFunctions('myResource', 'myEventName', function (originalData, delta) {
-      if (angular.isDefined(originalData) && angular.isDefined(delta)) {
-        return 'success';
-      }
+      it('should not be undefined', function () {
+        expect(CQRS).not.to.be(undefined);
+        expect(CQRS.eventReceived).not.to.be(undefined);
+      });
+
+      it('should emit data', function () {
+        var event = {resource: 'myResource', commandName: 'update', payload: {id: 123, name: 'marvin'}};
+
+        var receivedEvent;
+        $rootScope.$on('CQRS:events', function (angularEvent, event) {
+          receivedEvent = event;
+        });
+
+        CQRS.eventReceived(event);
+
+        expect(receivedEvent).to.be(event);
+      });
+
     });
-  });
 
-  describe('#denormalize()', function () {
+    describe('#onEvent()', function () {
 
-    it('should denormalize with registered function', function () {
-      var origData = {id: 22, name: 'sergio'};
-      var testEvent = {viewModel: 'myResource', eventName: 'myEventName', payload: {id: 22, name: 'marvin'}};
-      expect(CQRS.denormalize(testEvent, origData, testEvent.payload)).to.be('success');
+      it('should not be undefined', function () {
+        expect(CQRS).not.to.be(undefined);
+        expect(CQRS.onEvent).not.to.be(undefined);
+      });
+
+      it('should register listener and call listener on CQRS.events event', function () {
+        var success = false;
+        var listener = function () {
+          success = true;
+        };
+        CQRS.onEvent(listener);
+
+        $rootScope.$emit('CQRS:events', {});
+
+        expect(success).to.be(true);
+      });
+
     });
 
-    it('should return delta if no denormalizer function found', function () {
-      var origData = {id: 22, name: 'sergio'};
-      var testEvent = {resource: 'myResource', eventName: 'myOtherEvent', payload: {id: 22, name: 'marvin'}};
-      expect(CQRS.denormalize(testEvent, origData, testEvent.payload)).to.be(testEvent.payload);
+    describe('#denormalize()', function () {
+
+      beforeEach(function () {
+        CQRSProvider.registerDenormalizerFunctions('myResource', 'myEventName', function (originalData, delta) {
+          if (angular.isDefined(originalData) && angular.isDefined(delta)) {
+            return 'success';
+          }
+        });
+      });
+
+      it('should denormalize with registered function', function () {
+        var origData = {id: 22, name: 'sergio'};
+        var testEvent = {viewModel: 'myResource', eventName: 'myEventName', payload: {id: 22, name: 'marvin'}};
+        expect(CQRS.denormalize(testEvent, origData, testEvent.payload)).to.be('success');
+      });
+
+      it('should return delta if no denormalizer function found', function () {
+        var origData = {id: 22, name: 'sergio'};
+        var testEvent = {resource: 'myResource', eventName: 'myOtherEvent', payload: {id: 22, name: 'marvin'}};
+        expect(CQRS.denormalize(testEvent, origData, testEvent.payload)).to.be(testEvent.payload);
+      });
+
     });
 
   });

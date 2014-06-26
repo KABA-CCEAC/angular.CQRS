@@ -16,6 +16,15 @@ angular.module('ngCQRS')
     };
 
 
+    /**
+     * @ngdoc object
+     * @name ngCQRS.provider:CQRSProvider#setUrlFactory
+     * @methodOf ngCQRS.provider:CQRSProvider
+     * @kind function
+     *
+     * @description
+     * Register url factory function that generates query URL.
+     */
     this.setUrlFactory = function (urlFactoryFunction) {
       urlFactory = urlFactoryFunction;
     };
@@ -40,6 +49,23 @@ angular.module('ngCQRS')
     };
 
     /**
+     * @ngdoc object
+     * @name ngCQRS.provider:CQRSProvider#toUrlGETParameterString
+     * @methodOf ngCQRS.provider:CQRSProvider
+     * @kind function
+     *
+     * @description
+     *
+     */
+    this.toUrlGETParameterString = function (parameters) {
+      var buffer = [];
+      angular.forEach(parameters, function (paramValue, paramName) {
+        buffer.push(paramName + '=' + paramValue);
+      });
+      return '?' + buffer.join('&');
+    };
+
+    /**
      * @ngdoc service
      * @kind function
      * @name ngCQRS.service:CQRS
@@ -60,8 +86,8 @@ angular.module('ngCQRS')
        * Note: generally you should use Store#get()
        *
        */
-      function query(dataId) {
-        return $http.get(urlFactory(dataId));
+      function query(viewModel, parameters) {
+        return $http.get(urlFactory(viewModel, parameters));
       }
 
       /**
@@ -93,7 +119,6 @@ angular.module('ngCQRS')
           var denormalizerFunction = denormalizerFunctions[event.viewModel][event.eventName];
           return denormalizerFunction(originalData, change);
         } else {
-          //TODO: throw error here?
           return change;
         }
       }
