@@ -1,0 +1,24 @@
+<h1><code ng:non-bindable="">Store</code>
+<div><span class="hint">object in module <code ng:non-bindable="">ngCQRS</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="ngcqrs-service-page ngcqrs-service-store-page"><p>The store allows for querying modelViews and registering for subsequent events on that viewModelName.</p>
+</div></div>
+<div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_do">do(callback)</h3>
+<div class="do"><div class="ngcqrs-service-page ngcqrs-service-store-do-page"><p>register a handler for events on the specified viewModelName</p>
+</div><h5 id="methods_do_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>callback</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ngcqrs-service-page ngcqrs-service-store-do-page"><p>Function that is called on first query response and on subsequent events.
+Angular.CQRS will pass in the denormalized object (See <a href="#/api/ngCQRS.provider:CQRSProvider#registerdenormalizerfunctions">registerDenormalizerFunctions</a>).</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="methods_for">for(viewModelName, parameters)</h3>
+<div class="for"><div class="ngcqrs-service-page ngcqrs-service-store-for-page"><p>Specify the a viewModelName and optional url parameters</p>
+</div><h5 id="methods_for_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>viewModelName</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ngcqrs-service-page ngcqrs-service-store-for-page"><p>The identifier of the viewModelName</p>
+</div></td></tr><tr><td>parameters</td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ngcqrs-service-page ngcqrs-service-store-for-page"><p>An optional object containing url parameters. This will be passed toghether with the viewModelName identifier into your <a href="#/api/ngCQRS.provider:CQRSProvider#seturlfactory">urlFactory</a> function.</p>
+</div></td></tr></tbody></table></div>
+</li>
+</ul>
+</div>
+</div>

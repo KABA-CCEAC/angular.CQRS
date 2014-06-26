@@ -1,0 +1,29 @@
+<h1><code ng:non-bindable="">CQRS</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ngCQRS</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="ngcqrs-service-page ngcqrs-service-cqrs-page"><p>Is used to send commands and define the specific channel over which messages will be sent.</p>
+</div></div>
+<div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_eventreceived">eventReceived(event)</h3>
+<div class="eventreceived"><div class="ngcqrs-service-page ngcqrs-service-cqrs-eventreceived-page"><p>Used to call Angular.CQRS from your application, i.e. if a specific websocket message arrived.</p>
+</div><h5 id="methods_eventreceived_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>event</td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ngcqrs-service-page ngcqrs-service-cqrs-eventreceived-page"><p>The received event</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="methods_oncommand">onCommand(listener)</h3>
+<div class="oncommand"><div class="ngcqrs-service-page ngcqrs-service-cqrs-oncommand-page"><p>Used to register a channel over which Angular.CQRS commands will be sent, i.e. websocket connection</p>
+</div><h5 id="methods_oncommand_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>listener</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ngcqrs-service-page ngcqrs-service-cqrs-oncommand-page"><p>The function with which the command should be sent</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="methods_sendcommand">sendCommand(aggregateType, commandName, payload)</h3>
+<div class="sendcommand"><div class="ngcqrs-service-page ngcqrs-service-cqrs-sendcommand-page"><p>Sends a command using the function registered by <a href="#/api/ngCQRS.service:CQRS#oncommand">onCommand</a></p>
+</div><h5 id="methods_sendcommand_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>aggregateType</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ngcqrs-service-page ngcqrs-service-cqrs-sendcommand-page"><p>On which the command should be executed</p>
+</div></td></tr><tr><td>commandName</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ngcqrs-service-page ngcqrs-service-cqrs-sendcommand-page"><p>Name of the command</p>
+</div></td></tr><tr><td>payload</td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ngcqrs-service-page ngcqrs-service-cqrs-sendcommand-page"><p>The event payload</p>
+</div></td></tr></tbody></table></div>
+</li>
+</ul>
+</div>
+</div>
