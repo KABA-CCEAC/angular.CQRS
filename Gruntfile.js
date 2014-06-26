@@ -173,6 +173,23 @@ module.exports = function (grunt) {
         }
       },
 
+      // checks for newline at end of file
+      lintspaces: {
+        all: {
+          src: [
+            '**/*',
+            '!coverage/**/*',
+            '!docs/**/*',
+            '!node_modules/**/*',
+            '!<%= config.src %>/bower_components/**/*',
+            '!<%= config.dist %>/**/*'
+          ],
+          options: {
+            newline: true
+          }
+        }
+      },
+
 
       // Mocha testing framework configuration options
       mocha: {
@@ -207,6 +224,7 @@ module.exports = function (grunt) {
   grunt.registerTask('test', [
     'eslint:sourcefiles',
     'eslint:testfiles',
+    'lintspaces',
     'connect:test',
     'karma:unit'
   ]);
@@ -214,6 +232,7 @@ module.exports = function (grunt) {
   grunt.registerTask('testwatch', [
     'eslint:sourcefiles',
     'eslint:testfiles',
+    'lintspaces',
     'connect:test',
     'karma:unitwatch'
   ]);

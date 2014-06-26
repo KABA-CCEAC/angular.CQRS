@@ -1,6 +1,6 @@
 {
   "name": "angular.CQRS",
-  "version": "0.1",
+  "version": "0.1.0",
   "author": "KABA-CCEAC",
   "main": "./dist/angular.cqrs.js",
   "ignore": [

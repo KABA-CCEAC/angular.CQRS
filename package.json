@@ -1,6 +1,6 @@
 {
   "name": "angular.CQRS",
-  "version": "0.1",
+  "version": "0.1.0",
   "author": "KABA-CCEAC",
   "dependencies": {},
   "devDependencies": {
@@ -15,6 +15,7 @@
     "grunt-mocha": "0.4.10",
     "grunt-ngdocs": "0.2.2",
     "grunt-ngmin": "0.0.3",
+    "grunt-lintspaces": "0.5.1",
     "karma": "0.12.16",
     "karma-chrome-launcher": "0.1.4",
     "karma-coverage": "0.2.4",
