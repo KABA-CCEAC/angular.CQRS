@@ -23,7 +23,7 @@ describe('StoreService', function () {
     });
   });
 
-  beforeEach(inject(function (_$rootScope_, _$httpBackend_,_StoreService_, _DenormalizationService_) {
+  beforeEach(inject(function (_$rootScope_, _$httpBackend_, _StoreService_, _DenormalizationService_) {
     StoreService = _StoreService_;
     $rootScope = _$rootScope_;
     $httpBackend = _$httpBackend_;
@@ -39,7 +39,11 @@ describe('StoreService', function () {
   describe('#createForService()', function () {
     it('should register callback for service', function () {
 
-      DenormalizationService.registerDenormalizerFunction('myProfile', 'person', 'move', function (oldData, payload) {
+      DenormalizationService.registerDenormalizerFunction({
+        viewModelName: 'myProfile',
+        aggregateType: 'person',
+        eventName: 'move'
+      }, function (oldData, payload) {
         return payload;
       });
 
@@ -68,7 +72,11 @@ describe('StoreService', function () {
     it('should correctly deregister viewModelName event callbacks', function () {
 
 
-      DenormalizationService.registerDenormalizerFunction('myProfile', 'person', 'move', function (oldData, payload) {
+      DenormalizationService.registerDenormalizerFunction({
+        viewModelName: 'myProfile',
+        aggregateType: 'person',
+        eventName: 'move'
+      }, function (oldData, payload) {
         return payload;
       });
 
@@ -104,7 +112,11 @@ describe('StoreService', function () {
 
     it('should correctly deregister one callback for same viewModelName event', function () {
 
-      DenormalizationService.registerDenormalizerFunction('myProfile', 'person', 'move', function (oldData, payload) {
+      DenormalizationService.registerDenormalizerFunction({
+        viewModelName: 'myProfile',
+        aggregateType: 'person',
+        eventName: 'move'
+      }, function (oldData, payload) {
         return payload;
       });
 
@@ -218,7 +230,11 @@ describe('StoreService', function () {
 
     it('should notify all subscribed callbacks on new event', function () {
 
-      DenormalizationService.registerDenormalizerFunction('myProfile', 'person', 'move', function (oldData, payload) {
+      DenormalizationService.registerDenormalizerFunction({
+        viewModelName: 'myProfile',
+        aggregateType: 'person',
+        eventName: 'move'
+      }, function (oldData, payload) {
         return payload;
       });
 
@@ -307,17 +323,6 @@ describe('StoreService', function () {
       expect(callback2.foo).to.be(initialQueryData.foo);
     });
 
-    it('should not invoke denormalizer and callback on event with unknown viewModelName', function () {
-      //Store.for('myProfile').do(... was not called
-      DenormalizationService.registerDenormalizerFunction('myProfile', 'move', function () {
-        throw 'should not be invoked...';
-      });
-
-      var newAddress = {id: 123, street: 'Hauptweg'};
-      var event = {viewModel: 'myProfile', eventName: 'move', payload: newAddress};
-      $rootScope.$emit('CQRS:events', event);
-
-    });
 
     it('should invoke denormalizer and callback correctly on event', function () {
 
@@ -332,7 +337,11 @@ describe('StoreService', function () {
       $httpBackend.flush();
 
       var newAddress = {id: 123, street: 'Hauptweg'};
-      DenormalizationService.registerDenormalizerFunction('myProfile', 'person', 'move', function (originalData, change) {
+      DenormalizationService.registerDenormalizerFunction({
+        viewModelName: 'myProfile',
+        aggregateType: 'person',
+        eventName: 'move'
+      }, function (originalData, change) {
         expect(originalData).to.eql(initialQueryData);
         expect(change).to.eql(newAddress);
         return change;

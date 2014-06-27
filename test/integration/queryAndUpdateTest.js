@@ -34,7 +34,11 @@ describe('query and update on event', function () {
 
   it('should fetch profile and update on event', function (done) {
 
-    DenormalizationService.registerDenormalizerFunction('profile', 'profile', 'profileChanged', function (oldData, payload) {
+    DenormalizationService.registerDenormalizerFunction({
+      viewModelName: 'profile',
+      aggregateType: 'profile',
+      eventName: 'profileChanged'
+    }, function (oldData, payload) {
       return payload;
     });
 

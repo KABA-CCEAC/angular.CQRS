@@ -63,7 +63,11 @@ In order to update your view data on an incoming server event, we use denormaliz
 
 
     // Tell angular.CQRS how to denormalize (or merge) "moved" events on the aggregate type "person" for the "profile" ModelView.
-    DenormalizationService.registerDenormalizerFunction('profile', 'person', 'moved', function (oldProfile, eventPayload) {
+    DenormalizationService.registerDenormalizerFunction({
+          viewModelName: 'myProfile',
+          aggregateType: 'person',
+          eventName: 'move'
+        }, function (oldProfile, eventPayload) {
         if (eventPayload.id === oldProfile.person.id) {
             oldProfile.person.address = eventPayload.address;
         }

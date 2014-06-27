@@ -7,7 +7,7 @@ angular.module('ngCQRS')
  * @description
  * Used to configure denormalizers.
  */
-  .service('DenormalizationService', function DenormalizationService(){
+  .service('DenormalizationService', function DenormalizationService() {
     var denormalizerFunctions = {};
 
     /**
@@ -44,27 +44,33 @@ angular.module('ngCQRS')
      *
      * Registering a denormalization function is optional. If no denormalizer is registered for a specifiv viewModelName and event combination, the event payload itself is passed to the {@link ngCQRS.service:Store#do do} callback.
      *
-     * @param {string} viewModelName The viewModelName identifier
-     * @param {string} eventName The event identifier
+     * @param {object} config A configuration object that can contain:
+     *
+     *    Object properties:
+     *
+     *    - `viewModelName` – `{string}` – The name of the viewModel
+     *    - `eventName` - `{string}` - The name of the event
+     *    - `aggregateType` – `{string}` – An optional name of a aggregate type
+     *
      * @param {function} denormalizerFunction The function used to merge (denormalized) event payload and original viewModelName data.
      *    Angular.CQRS will pass in the original viewModelName data and the event payload.
      *
      */
-    function registerDenormalizerFunction(viewModelName, aggregateType, eventName, denormalizerFunction) {
-      if (angular.isUndefined(denormalizerFunctions[aggregateType])) {
-        denormalizerFunctions[aggregateType] = {};
+    function registerDenormalizerFunction(config, denormalizerFunction) {
+      if (angular.isUndefined(denormalizerFunctions[config.aggregateType])) {
+        denormalizerFunctions[config.aggregateType] = {};
       }
-      if (angular.isUndefined(denormalizerFunctions[aggregateType][eventName])) {
-        denormalizerFunctions[aggregateType][eventName] = {};
+      if (angular.isUndefined(denormalizerFunctions[config.aggregateType][config.eventName])) {
+        denormalizerFunctions[config.aggregateType][config.eventName] = {};
       }
-      if (angular.isDefined(denormalizerFunctions[aggregateType][eventName][viewModelName])) {
-        throw 'Denormalizer function for viewModelName "' + viewModelName + '", aggregateType: "' + aggregateType + '" and eventName "' + eventName + '" already defined.';
+      if (angular.isDefined(denormalizerFunctions[config.aggregateType][config.eventName][config.viewModelName])) {
+        throw 'Denormalizer function for viewModelName "' + config.viewModelName + '", aggregateType: "' + config.aggregateType + '" and eventName "' + config.eventName + '" already defined.';
       }
-      denormalizerFunctions[aggregateType][eventName][viewModelName] = denormalizerFunction;
+      denormalizerFunctions[config.aggregateType][config.eventName][config.viewModelName] = denormalizerFunction;
     }
 
     return {
-      getDenormalizerFunctions:getDenormalizerFunctions,
-      registerDenormalizerFunction:registerDenormalizerFunction
+      getDenormalizerFunctions: getDenormalizerFunctions,
+      registerDenormalizerFunction: registerDenormalizerFunction
     };
-});
+  });
