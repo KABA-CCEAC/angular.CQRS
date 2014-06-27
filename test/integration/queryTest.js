@@ -3,10 +3,8 @@ describe('query', function () {
   var StoreService, DenormalizationService;
 
   beforeEach(function () {
-    IntegrationTestHelper.setup({
-      logRequests: true,
-      logResponses: false
-    }, function (CQRSProvider) {
+
+    IntegrationTestHelper.setup(function (CQRSProvider) {
       CQRSProvider.setUrlFactory(function () {
         return 'http://localhost:3000/data/profile/id/53ad27e10831bf3012cd8dcd';
       });

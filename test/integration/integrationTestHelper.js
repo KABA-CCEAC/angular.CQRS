@@ -16,30 +16,27 @@ var IntegrationTestHelper = {
     }
   },
 
-  setup: function (options, configCallback) {
+  setup: function (moduleConfigCallbackFunction) {
 
     this.ensureDumpFunction();
 
-    // creating test module ntegrationtest with dependency to our CQRS code
-    var testModule = angular.module('integrationtest', ['ngCQRS']);
+    // creating test module integrationtest with dependency to our CQRS code
+    this.module = angular.module('integrationtest', ['ngCQRS']);
 
-    if (angular.isDefined(configCallback)) {
-      testModule.config(configCallback);
+    if (angular.isDefined(moduleConfigCallbackFunction)) {
+      this.module.config(moduleConfigCallbackFunction);
     }
 
-
-    // Creating injector for ng and jet.integrationtest
     this.inj = angular.injector(['ng', 'integrationtest']);
   },
 
+
+  /**
+   * will return a angular component (services, factories) for the given name.
+   * Note: you cannot get Providers this way. Use IntegrationTestHelper.setup(function(MyProvider){...});  instead.
+   */
   getCollaborator: function (collaboratorName) {
     return this.inj.get(collaboratorName);
-  },
-
-  expectArrayContains: function (value, array) {
-    var found = this.getCollaborator('$filter')('filter')(array, value, true);
-    expect(found.length).toBeGreaterThan(0);
   }
-
 
 };
