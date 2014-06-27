@@ -20,15 +20,15 @@ module.run(function (CQRS, DenormalizationService) {
     CQRS.eventReceived(data);
   });
 
-  // pass commands to socket
+  // pass commands to your socket
   CQRS.onCommand(function (data) {
     mySocket.emit('commands', data);
   });
 
-  // tell angular.CQRS how to denormalize (or merge) profileChanged events on the modelView personDetailView
-  DenormalizationService.registerDenormalizerFunction('profile', 'person', 'moved', function (oldProfile, payload) {
-    if (payload.id === oldProfile.person.id) {
-      oldProfile.person.address = payload.address;
+  // Tell angular.CQRS how to denormalize (or merge) "moved" events on the aggregate type "person" for the "profile" ModelView.
+  DenormalizationService.registerDenormalizerFunction('profile', 'person', 'moved', function (oldProfile, eventPayload) {
+    if (eventPayload.id === oldProfile.person.id) {
+      oldProfile.person.address = eventPayload.address;
     }
 
     return oldProfile;
@@ -42,13 +42,15 @@ module.controller('MainController', function ($scope, StoreService, CQRS) {
 
   // send a query to the server, requesting data with the id 'name'
   // angular.CQRS will invoke your callback on every update event from the server
-  store.for('profile').do(function (personDetails) {
-    $scope.personDetails = personDetails;
+  store.for('profile').do(function (profileData) {
+    $scope.profile = profileData;
   });
 
   $scope.onChangeProfile = function () {
+
+    // Send a "move" command for the aggregate "person" to the server
     CQRS.sendCommand('person', 'move', {
-      id: $scope.personDetails.id,
+      id: $scope.profile.id,
       address: 'my entered new address'
     });
   };
