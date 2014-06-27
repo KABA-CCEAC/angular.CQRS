@@ -1,6 +1,6 @@
 describe('query', function () {
 
-  var StoreService, DenormalizationService;
+  var StoreService;
 
   beforeEach(function () {
 
@@ -10,20 +10,15 @@ describe('query', function () {
       });
     });
 
-    DenormalizationService = IntegrationTestHelper.getCollaborator('DenormalizationService');
     StoreService = IntegrationTestHelper.getCollaborator('StoreService');
   });
 
-
   it('should fetch profile', function (done) {
-    DenormalizationService.registerDenormalizerFunction('profile', 'profile', 'profileChanged', function (oldData, payload) {
-      return payload;
-    });
 
     var store = StoreService.createForService();
 
     store.for('profile').do(function (result) {
-      expect(result).to.be(true);
+      expect(result).not.to.be(undefined);
       done();
     });
 
