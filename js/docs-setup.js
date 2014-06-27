@@ -19,7 +19,7 @@ NG_DOCS={
       "type": "service",
       "moduleName": "ngCQRS",
       "shortDescription": "Is used to send commands and define the specific channel over which messages will be sent.",
-      "keywords": "aggregatetype angular api application arrived call channel command commandname commands connection cqrs define event eventreceived executed function listener message messages ngcqrs oncommand payload received register registered send sendcommand sends service specific websocket"
+      "keywords": "aggregatetype angular api application arrived call channel command commandname commands connection cqrs define event eventreceived executed function listener message messages ngcqrs oncommand optional payload received register registered send sendcommand sends service specific websocket"
     },
     {
       "section": "api",
@@ -28,7 +28,7 @@ NG_DOCS={
       "type": "object",
       "moduleName": "ngCQRS",
       "shortDescription": "Used to configure denormalizers.",
-      "keywords": "aggregate aggregatetype angular api callback change client combination configure cqrs data dataset delta denormalization denormalizer denormalizerfunction denormalizers event eventname events existing function functions getdenormalizerfunctions identifier incoming merge ngcqrs object optional original pair pass passed payload register registerdenormalizerfunction registered registering returns service specifiv type viewmodelname"
+      "keywords": "aggregate aggregatetype angular api change client combination config configuration configure cqrs data dataset delta denormalization denormalizerfunction denormalizers event eventname events existing function functions getdenormalizerfunctions handle incoming merge ngcqrs object optional original pair pass payload properties register registerdenormalizerfunction returns service type viewmodel viewmodelname"
     },
     {
       "section": "api",
