@@ -5,24 +5,16 @@ module.exports = function (config) {
 
     files: [
       'src/bower_components/angular/angular.js',
-      'src/bower_components/angular-mocks/angular-mocks.js',
+      'node_modules/socket.io/node_modules/socket.io-client/socket.io.js',
       'src/cqrs/module.js',
       'src/cqrs/**/*.js',
-      'test/testUtils/**/*.js',
-      'test/unit/**/*.js'
+      'test/integration/**/*.js'
     ],
 
     exclude: [
       'karma.conf.js',
       'karma-integration.conf.js'
     ],
-
-    preprocessors: {
-      // source files, that you wanna generate coverage for
-      // do not include tests or libraries
-      // (these files will be instrumented by Istanbul)
-      'src/cqrs/*.js': ['coverage']
-    },
 
     logLevel: config.LOG_INFO,
 
@@ -32,7 +24,7 @@ module.exports = function (config) {
 
     // cli runner port
     runnerPort: 9000,
-    reporters: ['progress', 'coverage'],
+    reporters: ['progress'],
     captureTimeout: 7000
   });
 };

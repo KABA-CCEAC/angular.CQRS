@@ -6,8 +6,10 @@
       "strict": 0,
       "quotes": [2, "single"],
       "if-curly-formatting": 0,
-      "angular-module-declaration": 2,
-      "angular-component-named-functions": 1
+      "angular-module-declaration": 1,
+      "angular-component-named-functions": 1 ,
+      "no-console":0,
+      "no-undef":1
    },
    "globals": {
       "angular": false,
@@ -16,6 +18,8 @@
       "inject":false,
       "expect":false,
       "beforeEach": false,
-      "dump": false
+      "dump": false,
+      "window":false,
+      "console":false
    }
 }

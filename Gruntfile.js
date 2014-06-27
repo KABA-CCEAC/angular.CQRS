@@ -211,6 +211,10 @@ module.exports = function (grunt) {
           configFile: 'karma.conf.js',
           singleRun: false,
           autoWatch: true
+        },
+        integration: {
+          configFile: 'karma-integration.conf.js',
+          singleRun: true
         }
       }
     }
@@ -221,7 +225,7 @@ module.exports = function (grunt) {
     'ngdocs'
   ]);
 
-  grunt.registerTask('test', [
+  grunt.registerTask('test:unit', [
     'eslint:sourcefiles',
     'eslint:testfiles',
     'lintspaces',
@@ -229,7 +233,11 @@ module.exports = function (grunt) {
     'karma:unit'
   ]);
 
-  grunt.registerTask('testwatch', [
+  grunt.registerTask('test', [
+    'test:unit'
+  ]);
+
+  grunt.registerTask('test:unitwatch', [
     'eslint:sourcefiles',
     'eslint:testfiles',
     'lintspaces',
@@ -237,9 +245,17 @@ module.exports = function (grunt) {
     'karma:unitwatch'
   ]);
 
+  grunt.registerTask('test:integration', [
+    'eslint:sourcefiles',
+    'eslint:testfiles',
+    'lintspaces',
+    'connect:test',
+    'karma:integration'
+  ]);
+
   grunt.registerTask('build', [
     'clean:dist',
-    'test',
+    'test:unit',
     'docu',
     'concat:dist',
     'ngmin',
