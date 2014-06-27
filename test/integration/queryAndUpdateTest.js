@@ -55,9 +55,9 @@ describe('query and update on event', function () {
 
     // TODO: is a pause needed here?
 
-    CQRS.sendCommand('profile', 'changeProfile', {
+    CQRS.sendCommand('changeProfile', {
       // TODO:  add some changed attributes to this command payload
-    });
+    }, 'profile');
 
   });
 

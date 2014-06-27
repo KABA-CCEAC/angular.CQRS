@@ -17,11 +17,11 @@
 </div><h5 id="methods_oncommand_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>listener</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ngcqrs-service-page ngcqrs-service-cqrs-oncommand-page"><p>The function with which the command should be sent</p>
 </div></td></tr></tbody></table></div>
 </li>
-<li><h3 id="methods_sendcommand">sendCommand(aggregateType, commandName, payload)</h3>
+<li><h3 id="methods_sendcommand">sendCommand(commandName, payload, aggregateType)</h3>
 <div class="sendcommand"><div class="ngcqrs-service-page ngcqrs-service-cqrs-sendcommand-page"><p>Sends a command using the function registered by <a href="#/api/ngCQRS.service:CQRS#oncommand">onCommand</a></p>
-</div><h5 id="methods_sendcommand_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>aggregateType</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ngcqrs-service-page ngcqrs-service-cqrs-sendcommand-page"><p>On which the command should be executed</p>
-</div></td></tr><tr><td>commandName</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ngcqrs-service-page ngcqrs-service-cqrs-sendcommand-page"><p>Name of the command</p>
+</div><h5 id="methods_sendcommand_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>commandName</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ngcqrs-service-page ngcqrs-service-cqrs-sendcommand-page"><p>Name of the command</p>
 </div></td></tr><tr><td>payload</td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="ngcqrs-service-page ngcqrs-service-cqrs-sendcommand-page"><p>The event payload</p>
+</div></td></tr><tr><td>aggregateType</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="ngcqrs-service-page ngcqrs-service-cqrs-sendcommand-page"><p>Optional aggregateType on which the command should be executed</p>
 </div></td></tr></tbody></table></div>
 </li>
 </ul>

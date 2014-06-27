@@ -73,11 +73,27 @@ describe('CQRS', function () {
           commandSent = data;
         });
 
-        CQRS.sendCommand('person', 'move', dummyPayload);
+        CQRS.sendCommand('move', dummyPayload, 'person');
 
         expect(commandSent).to.eql({
           name: 'move',
           aggregateType: 'person',
+          payload: dummyPayload
+        });
+      });
+
+
+      it('should emit rootScope event without optional aggregateType specified', function () {
+
+        var dummyPayload = {id: 123, address: 'Heimweg'} , commandSent = {};
+        CQRS.onCommand(function (data) {
+          commandSent = data;
+        });
+
+        CQRS.sendCommand('move', dummyPayload);
+
+        expect(commandSent).to.eql({
+          name: 'move',
           payload: dummyPayload
         });
       });

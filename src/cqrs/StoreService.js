@@ -22,7 +22,7 @@ angular.module('ngCQRS')
           return;
         }
 
-        var denormalizerFunctions = DenormalizationService.getDenormalizerFunctions(evt.aggregateType, evt.name);
+        var denormalizerFunctions = DenormalizationService.getDenormalizerFunctions(evt.name, evt.aggregateType);
         angular.forEach(denormalizerFunctions, function (denormalizerFunction, viewModelName) {
           var scopeCallback = scopeCallbacks[viewModelName];
           if (angular.isDefined(scopeCallback)) {

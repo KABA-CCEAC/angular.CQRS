@@ -77,12 +77,21 @@ angular.module('ngCQRS')
        * @description
        * Sends a command using the function registered by {@link ngCQRS.service:CQRS#onCommand onCommand}
        *
-       * @param {string} aggregateType On which the command should be executed
        * @param {string} commandName Name of the command
        * @param {object} payload The event payload
+       * @param {string} aggregateType Optional aggregateType on which the command should be executed
        */
-      function sendCommand(aggregateType, commandName, payload) {
-        $rootScope.$emit('CQRS:commands', {aggregateType: aggregateType, name: commandName, payload: payload});
+      function sendCommand(commandName, payload, aggregateType) {
+        var commandObject = {
+          name: commandName,
+          payload: payload
+        };
+
+        if (angular.isDefined(aggregateType)) {
+          commandObject.aggregateType = aggregateType;
+        }
+
+        $rootScope.$emit('CQRS:commands', commandObject);
       }
 
       /**

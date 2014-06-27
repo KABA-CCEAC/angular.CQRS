@@ -19,10 +19,13 @@ angular.module('ngCQRS')
      * @description
      * Returns the denormalization functions for the specified aggregateType/eventName pair.
      *
-     * @param {string} aggregateType The aggregate type
      * @param {string} eventName The event name
+     * @param {string} aggregateType The aggregate type
      */
-    function getDenormalizerFunctions(aggregateType, eventName) {
+    function getDenormalizerFunctions(eventName, aggregateType) {
+      if (angular.isUndefined(aggregateType)) {
+        aggregateType = '_common';
+      }
       if (angular.isUndefined(denormalizerFunctions[aggregateType])) {
         return {};
       }
@@ -40,9 +43,8 @@ angular.module('ngCQRS')
      *
      *
      * @description
-     * Can be used to register a denormalization function for incoming events. Can be used to merge the change delta into the existing dataset on the client.
-     *
-     * Registering a denormalization function is optional. If no denormalizer is registered for a specifiv viewModelName and event combination, the event payload itself is passed to the {@link ngCQRS.service:Store#do do} callback.
+     * Is used to register a denormalization function for incoming events. Can be used to merge the change delta into the existing dataset on the client.
+     * You must register a denormalization function for every viewModel + eventName combination (aggregateType is optional) you want to handle.
      *
      * @param {object} config A configuration object that can contain:
      *
@@ -57,6 +59,10 @@ angular.module('ngCQRS')
      *
      */
     function registerDenormalizerFunction(config, denormalizerFunction) {
+      if (angular.isUndefined(config.aggregateType)) {
+        // this is allowed. store all denormalizers without a specific aggregateType under '_common'
+        config.aggregateType = '_common';
+      }
       if (angular.isUndefined(denormalizerFunctions[config.aggregateType])) {
         denormalizerFunctions[config.aggregateType] = {};
       }
