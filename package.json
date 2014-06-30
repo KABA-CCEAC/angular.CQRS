@@ -13,7 +13,7 @@
     "grunt-eslint": "0.5.0",
     "grunt-karma": "0.8.3",
     "grunt-mocha": "0.4.10",
-    "grunt-ngdocs": "0.2.9",
+    "grunt-ngdocs": "0.2.2",
     "grunt-ngmin": "0.0.3",
     "grunt-lintspaces": "0.5.1",
     "karma": "0.12.16",
