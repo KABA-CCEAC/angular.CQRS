@@ -40,8 +40,19 @@ module.exports = function (grunt) {
               dot: true,
               src: [
                 '.tmp',
-                '<%= config.dist %>/*',
+                '<%= config.dist %>',
                 '!<%= config.dist %>/.git*'
+              ]
+            }
+          ]
+        },
+        coverage: {
+          files: [
+            {
+              dot: true,
+              src: [
+                '.tmp',
+                'coverage'
               ]
             }
           ]
@@ -137,8 +148,7 @@ module.exports = function (grunt) {
           html5Mode: false,
           startPage: '/api',
           title: 'Angular.CQRS Documentation',
-          animation: true,
-          styles: ['docs/css/docuStyle.css']
+          animation: true
         },
         api: {
           src: [
@@ -253,6 +263,7 @@ module.exports = function (grunt) {
     'karma:integration'
   ]);
 
+
   grunt.registerTask('build', [
     'clean:dist',
     'test:unit',
@@ -266,4 +277,5 @@ module.exports = function (grunt) {
     'build'
   ]);
 
-};
+}
+;
