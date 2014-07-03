@@ -61,7 +61,6 @@ describe('query and update on event', function () {
     var store = StoreService.createForService();
     var callbackInvokeCounter = 0;
 
-    console.log(Date.now());
     store.for('profile').do(function (result) {
       expect(result).not.to.be(undefined);
       callbackInvokeCounter++;
@@ -76,7 +75,6 @@ describe('query and update on event', function () {
           }
         });
       } else if (callbackInvokeCounter > 1) {
-        console.log(Date.now());
         done();
       }
     });
