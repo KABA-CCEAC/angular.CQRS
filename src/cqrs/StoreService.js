@@ -12,7 +12,7 @@ angular.module('ngCQRS')
     var scopeCallbacks = {};
 
     function isValidDataModelUpdateEvent(evt) {
-      return (angular.isDefined(evt.payload) && angular.isDefined(evt.name) && angular.isDefined(evt.aggregateType));
+      return (angular.isDefined(evt.payload) && angular.isDefined(evt.name));
     }
 
     function init() {
@@ -95,8 +95,8 @@ angular.module('ngCQRS')
     function get(viewModelName, parameters, callback, scopeId) {
       throwErrorIfInvalidGetArguments(viewModelName, parameters, callback);
       var queryPromise = CQRS.query(viewModelName, parameters);
-      queryPromise.then(function (result) {
-        handleQueryResponse(result.data, viewModelName, callback, scopeId);
+      queryPromise.then(function (data) {
+        handleQueryResponse(data, viewModelName, callback, scopeId);
       });
     }
 

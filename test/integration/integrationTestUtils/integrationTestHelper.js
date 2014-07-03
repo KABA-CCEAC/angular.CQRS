@@ -18,6 +18,7 @@ var IntegrationTestHelper = {
 
   setup: function (moduleConfigCallbackFunction) {
 
+
     this.ensureDumpFunction();
 
     // creating test module integrationtest with dependency to our CQRS code
@@ -26,6 +27,8 @@ var IntegrationTestHelper = {
     if (angular.isDefined(moduleConfigCallbackFunction)) {
       this.module.config(moduleConfigCallbackFunction);
     }
+
+    IntegrationRestLogger.setup();
 
     this.inj = angular.injector(['ng', 'integrationtest']);
   },

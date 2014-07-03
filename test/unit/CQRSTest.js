@@ -57,6 +57,18 @@ describe('CQRS', function () {
         expect(response).to.equal(data);
       });
 
+      it('should parse query response', function () {
+        CQRSProvider.setQueryParser(function (data) {
+          return data.content;
+        });
+
+        var data = {content: {id: 123, name: 'marvin'}};
+        $httpBackend.expectGET('http://www.example.com/api/myResource?filter=something').respond(data);
+        var response = CQRS.query('myResource', {filter: 'something'});
+        $httpBackend.flush();
+        expect(response).to.eql(data.content);
+      });
+
     });
 
     describe('#sendCommand()', function () {
@@ -73,10 +85,14 @@ describe('CQRS', function () {
           commandSent = data;
         });
 
-        CQRS.sendCommand('move', dummyPayload, 'person');
+        CQRS.sendCommand({
+          command: 'move',
+          payload: dummyPayload,
+          aggregateType: 'person'
+        });
 
         expect(commandSent).to.eql({
-          name: 'move',
+          command: 'move',
           aggregateType: 'person',
           payload: dummyPayload
         });
@@ -90,10 +106,10 @@ describe('CQRS', function () {
           commandSent = data;
         });
 
-        CQRS.sendCommand('move', dummyPayload);
+        CQRS.sendCommand({command: 'move', payload: dummyPayload});
 
         expect(commandSent).to.eql({
-          name: 'move',
+          command: 'move',
           payload: dummyPayload
         });
       });
@@ -131,7 +147,7 @@ describe('CQRS', function () {
       it('should emit data', function () {
         var event = {resource: 'myResource', commandName: 'update', payload: {id: 123, name: 'marvin'}};
 
-        var receivedEvent;
+        var receivedEvent = {};
         $rootScope.$on('CQRS:events', function (angularEvent, event) {
           receivedEvent = event;
         });
@@ -160,6 +176,25 @@ describe('CQRS', function () {
         $rootScope.$emit('CQRS:events', {});
 
         expect(success).to.be(true);
+      });
+
+      it('should parse incoming event data', function () {
+        CQRSProvider.setEventParser(function (data) {
+          return data.content;
+        });
+
+        var receivedData;
+        var listener = function (data) {
+          // CQRS should pass in already parsed data...
+          receivedData = data;
+        };
+        CQRS.onEvent(listener);
+
+
+        var emmittedData = {content: {attributeOne: 'valueOne'}};
+        $rootScope.$emit('CQRS:events', emmittedData);
+
+        expect(receivedData).to.eql(emmittedData.content);
       });
 
     });

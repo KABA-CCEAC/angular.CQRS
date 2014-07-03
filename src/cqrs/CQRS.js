@@ -12,8 +12,20 @@ angular.module('ngCQRS')
 
 
     var urlFactory = function () {
-      throw 'Please specify a urlFactory for CQRS queries. CQRSProvider.setUrlFactory(function (viewModelName) { .... }';
-    };
+        throw 'Please specify a urlFactory for CQRS queries. CQRSProvider.setUrlFactory(function (viewModelName) { .... }';
+      },
+      queryParserFunction = function (responseData) {
+        return responseData;
+      },
+      eventParserFunction = function (responseData) {
+        return responseData;
+      };
+
+    function throwIfInvalidFunction(func) {
+      if (typeof func !== 'function') {
+        throw 'Please specify a valid function!';
+      }
+    }
 
     /**
      * @ngdoc object
@@ -28,7 +40,42 @@ angular.module('ngCQRS')
      *  Angular.CQRS will pass in the viewModelName identifier and url parameters.
      */
     this.setUrlFactory = function (urlFactoryFunction) {
+      throwIfInvalidFunction(urlFactoryFunction);
       urlFactory = urlFactoryFunction;
+    };
+
+    /**
+     * @ngdoc object
+     * @name ngCQRS.provider:CQRSProvider#setQueryParser
+     * @methodOf ngCQRS.provider:CQRSProvider
+     * @kind function
+     *
+     * @description
+     * Registers a parse function that will be used to modify all returned query responses.
+     * This is optional.
+     *
+     * @param {function} parserFunction The parser function to modify the query response. angular.CQRS will pass in the query response.
+     */
+    this.setQueryParser = function (parserFunction) {
+      throwIfInvalidFunction(parserFunction);
+      queryParserFunction = parserFunction;
+    };
+
+    /**
+     * @ngdoc object
+     * @name ngCQRS.provider:CQRSProvider#setQueryParser
+     * @methodOf ngCQRS.provider:CQRSProvider
+     * @kind function
+     *
+     * @description
+     * Registers a parse function that will be used to modify all incoming events.
+     * This is optional.
+     *
+     * @param {function} parserFunction The parser function to modify the event. angular.CQRS will pass in the event object.
+     */
+    this.setEventParser = function (parserFunction) {
+      throwIfInvalidFunction(parserFunction);
+      eventParserFunction = parserFunction;
     };
 
     /**
@@ -66,7 +113,13 @@ angular.module('ngCQRS')
        * Note: generally you should use Store#for()
        */
       function query(viewModelName, parameters) {
-        return $http.get(urlFactory(viewModelName, parameters));
+        var deferred = $q.defer();
+        $http.get(urlFactory(viewModelName, parameters))
+          .success(function (data) {
+            deferred.resolve(queryParserFunction(data));
+          })
+          .error(deferred.reject);
+        return deferred.promise;
       }
 
       /**
@@ -77,20 +130,9 @@ angular.module('ngCQRS')
        * @description
        * Sends a command using the function registered by {@link ngCQRS.service:CQRS#onCommand onCommand}
        *
-       * @param {string} commandName Name of the command
-       * @param {object} payload The event payload
-       * @param {string} aggregateType Optional aggregateType on which the command should be executed
+       * @param {object} commandObject The command object to send to the backend
        */
-      function sendCommand(commandName, payload, aggregateType) {
-        var commandObject = {
-          name: commandName,
-          payload: payload
-        };
-
-        if (angular.isDefined(aggregateType)) {
-          commandObject.aggregateType = aggregateType;
-        }
-
+      function sendCommand(commandObject) {
         $rootScope.$emit('CQRS:commands', commandObject);
       }
 
@@ -99,7 +141,7 @@ angular.module('ngCQRS')
        */
       function onEvent(listener) {
         $rootScope.$on('CQRS:events', function (angularEvent, data) {
-          listener(data);
+          listener(eventParserFunction(data));
         });
       }
 

@@ -1,18 +1,35 @@
 describe('query and update on event', function () {
 
-  var CQRS, StoreService, DenormalizationService;
+  var CQRS, StoreService, DenormalizationService, $http, USER_ID = '';
 
-  beforeEach(function () {
+  beforeEach(function (done) {
 
     IntegrationTestHelper.setup(function (CQRSProvider) {
       CQRSProvider.setUrlFactory(function () {
-        return 'http://localhost:3000/data/profile/id/53ad27e10831bf3012cd8dcd';
+        return 'http://localhost:3000/data/profile/id/' + USER_ID;
       });
+
+      CQRSProvider.setQueryParser(function (data) {
+        return data.response;
+      });
+
+      CQRSProvider.setEventParser(function (data) {
+        return {
+          payload: data.payload,
+          name: data.event
+        };
+      });
+
     });
 
     DenormalizationService = IntegrationTestHelper.getCollaborator('DenormalizationService');
     StoreService = IntegrationTestHelper.getCollaborator('StoreService');
     CQRS = IntegrationTestHelper.getCollaborator('CQRS');
+    $http = IntegrationTestHelper.getCollaborator('$http');
+    $http.get('http://localhost:3000/auth/providerdummy').success(function (data) {
+      USER_ID = data.id;
+      done();
+    });
   });
 
 
@@ -36,28 +53,33 @@ describe('query and update on event', function () {
 
     DenormalizationService.registerDenormalizerFunction({
       viewModelName: 'profile',
-      aggregateType: 'profile',
       eventName: 'profileChanged'
     }, function (oldData, payload) {
-      return payload;
+      return angular.extend(oldData, payload);
     });
 
     var store = StoreService.createForService();
     var callbackInvokeCounter = 0;
 
+    console.log(Date.now());
     store.for('profile').do(function (result) {
       expect(result).not.to.be(undefined);
       callbackInvokeCounter++;
-      if (callbackInvokeCounter > 1) {
+
+      if (callbackInvokeCounter === 1) {
+        CQRS.sendCommand({
+          command: 'changeProfile',
+          aggregateType: 'profile',
+          payload: {
+            description: 'new Description',
+            id: result.profile.id
+          }
+        });
+      } else if (callbackInvokeCounter > 1) {
+        console.log(Date.now());
         done();
       }
     });
-
-    // TODO: is a pause needed here?
-
-    CQRS.sendCommand('changeProfile', {
-      // TODO:  add some changed attributes to this command payload
-    }, 'profile');
 
   });
 

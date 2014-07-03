@@ -8,6 +8,7 @@ module.exports = function (config) {
       'node_modules/socket.io/node_modules/socket.io-client/socket.io.js',
       'src/cqrs/module.js',
       'src/cqrs/**/*.js',
+      'test/integration/integrationTestUtils/*.js',
       'test/integration/**/*.js'
     ],
 
@@ -19,6 +20,7 @@ module.exports = function (config) {
     logLevel: config.LOG_INFO,
 
     browsers: ['PhantomJS'],
+
     // web server port
     port: 8081,
 

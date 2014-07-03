@@ -26,6 +26,13 @@ describe('CQRSProvider', function () {
         return dataId;
       });
     });
+
+    it('should throw on invalid function', function () {
+      expect(function () {
+        CQRSProvider.setUrlFactory('notAFunction');
+      }).to.throwError();
+    });
+
   });
 
   describe('#toUrlGETParameterString()', function () {
@@ -36,6 +43,34 @@ describe('CQRSProvider', function () {
       expect(buildString).to.contain('one=1');
       expect(buildString).to.contain('2=two');
       expect(buildString).to.contain('&');
+    });
+  });
+
+  describe('#setQueryParser()', function () {
+    it('should set parser function', function () {
+      CQRSProvider.setQueryParser(function (responseData) {
+        return responseData.response;
+      });
+    });
+
+    it('should throw on invalid function', function () {
+      expect(function () {
+        CQRSProvider.setQueryParser('notAFunction');
+      }).to.throwError();
+    });
+  });
+
+  describe('#setEventParser()', function () {
+    it('should set parser function', function () {
+      CQRSProvider.setEventParser(function (responseData) {
+        return responseData.response;
+      });
+    });
+
+    it('should throw on invalid function', function () {
+      expect(function () {
+        CQRSProvider.setEventParser('notAFunction');
+      }).to.throwError();
     });
   });
 
