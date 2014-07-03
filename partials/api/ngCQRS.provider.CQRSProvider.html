@@ -7,7 +7,19 @@
 <div class="description"><div class="ngcqrs-provider-page ngcqrs-provider-cqrsprovider-page"><p>Handles the configuration of the CQRS module.</p>
 </div></div>
 <div class="member method"><h2 id="methods">Methods</h2>
-<ul class="methods"><li><h3 id="methods_seturlfactory">setUrlFactory(urlFactoryFunction)</h3>
+<ul class="methods"><li><h3 id="methods_setqueryparser">setQueryParser(parserFunction)</h3>
+<div class="setqueryparser"><div class="ngcqrs-provider-page ngcqrs-provider-cqrsprovider-setqueryparser-page"><p>Registers a parse function that will be used to modify all returned query responses.
+This is optional.</p>
+</div><h5 id="methods_setqueryparser_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>parserFunction</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ngcqrs-provider-page ngcqrs-provider-cqrsprovider-setqueryparser-page"><p>The parser function to modify the query response. angular.CQRS will pass in the query response.</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="methods_setqueryparser">setQueryParser(parserFunction)</h3>
+<div class="setqueryparser"><div class="ngcqrs-provider-page ngcqrs-provider-cqrsprovider-setqueryparser-page"><p>Registers a parse function that will be used to modify all incoming events.
+This is optional.</p>
+</div><h5 id="methods_setqueryparser_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>parserFunction</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ngcqrs-provider-page ngcqrs-provider-cqrsprovider-setqueryparser-page"><p>The parser function to modify the event. angular.CQRS will pass in the event object.</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="methods_seturlfactory">setUrlFactory(urlFactoryFunction)</h3>
 <div class="seturlfactory"><div class="ngcqrs-provider-page ngcqrs-provider-cqrsprovider-seturlfactory-page"><p>Registers a url factory function that will be used to generate query URLs.</p>
 </div><h5 id="methods_seturlfactory_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>urlFactoryFunction</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ngcqrs-provider-page ngcqrs-provider-cqrsprovider-seturlfactory-page"><p>The factory function.
 Angular.CQRS will pass in the viewModelName identifier and url parameters.</p>
