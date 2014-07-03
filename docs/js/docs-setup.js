@@ -10,7 +10,7 @@ NG_DOCS={
       "type": "object",
       "moduleName": "ngCQRS",
       "shortDescription": "Handles the configuration of the CQRS module.",
-      "keywords": "angular api configuration cqrs factory form function generate generates handles identifier module ngcqrs object parameter parameters pass provider query registers seturlfactory string tourlgetparameterstring url urlfactoryfunction urls viewmodelname"
+      "keywords": "angular api configuration cqrs event events factory form function generate generates handles identifier incoming modify module ngcqrs object optional parameter parameters parse parser parserfunction pass provider query registers response responses returned setqueryparser seturlfactory string tourlgetparameterstring url urlfactoryfunction urls viewmodelname"
     },
     {
       "section": "api",
@@ -19,7 +19,7 @@ NG_DOCS={
       "type": "service",
       "moduleName": "ngCQRS",
       "shortDescription": "Is used to send commands and define the specific channel over which messages will be sent.",
-      "keywords": "aggregatetype angular api application arrived call channel command commandname commands connection cqrs define event eventreceived executed function listener message messages ngcqrs oncommand optional payload received register registered send sendcommand sends service specific websocket"
+      "keywords": "angular api application arrived backend call channel command commandobject commands connection cqrs define event eventreceived function listener message messages ngcqrs object oncommand received register registered send sendcommand sends service specific websocket"
     },
     {
       "section": "api",
