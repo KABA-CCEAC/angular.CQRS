@@ -1,11 +1,23 @@
 angular.module('ngCQRS')
 
 /**
- * @ngdoc object
+ * @ngdoc service
  * @name ngCQRS.service:DenormalizationService
  *
  * @description
  * Used to configure denormalizers.
+ *
+ * ### Usage
+ *
+ *  ```javascript
+DenormalizationService.registerDenormalizerFunction({
+  viewModelName: 'profile',
+  eventName: 'profileChanged'
+}, function (oldData, payload) {
+  return angular.extend(oldData, payload);
+});
+ *  ```
+ *
  */
   .service('DenormalizationService', function DenormalizationService() {
     var denormalizerFunctions = {};
@@ -37,9 +49,9 @@ angular.module('ngCQRS')
 
     /**
      * @ngdoc object
+     * @kind function
      * @name ngCQRS.service:DenormalizationService#registerDenormalizerFunction
      * @methodOf ngCQRS.service:DenormalizationService
-     * @kind function
      *
      *
      * @description

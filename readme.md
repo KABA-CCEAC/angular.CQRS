@@ -68,9 +68,9 @@ In order to update your view data on an incoming server event, we use denormaliz
           aggregateType: 'person',
           eventName: 'move'
         }, function (oldProfile, eventPayload) {
-        if (eventPayload.id === oldProfile.person.id) {
-            oldProfile.person.address = eventPayload.address;
-        }
+          if (eventPayload.id === oldProfile.person.id) {
+              oldProfile.person.address = eventPayload.address;
+          }
 
         return oldProfile;
     });
@@ -94,10 +94,14 @@ In order to update your view data on an incoming server event, we use denormaliz
         $scope.onChangeProfile = function () {
 
             // Send a "move" command for the aggregate "person" to the server
-            CQRS.sendCommand('person', 'move', {
-                id: $scope.profile.id,
-                address: 'my entered new address'
-            });
+           CQRS.sendCommand({
+             command: 'move',
+             aggregateType: 'person',
+             payload: {
+               street: 'new Streetname',
+               id: profile.person.id
+             }
+           });
         };
 
     });

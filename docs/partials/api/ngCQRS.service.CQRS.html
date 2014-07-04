@@ -5,6 +5,28 @@
 </h1>
 <div><h2 id="description">Description</h2>
 <div class="description"><div class="ngcqrs-service-page ngcqrs-service-cqrs-page"><p>Is used to send commands and define the specific channel over which messages will be sent.</p>
+<h5 id="description_usage">Usage</h5>
+<p>In order to connect angular.CQRS to your websocket / long polling solution, wire up commands and events.</p>
+<pre><code class="lang-javascript">var mySocket = io();
+
+// pass in events from your socket
+mySocket.on(&#39;events&#39;, function (data) {
+  CQRS.eventReceived(data);
+});
+
+// pass commands to your socket
+CQRS.onCommand(function (data) {
+  mySocket.emit(&#39;commands&#39;, data);
+});</code></pre>
+<p>To send Commands to the server:</p>
+<pre><code class="lang-javascript">CQRS.sendCommand({
+  command: &#39;changeProfile&#39;,
+  aggregateType: &#39;profile&#39;,
+  payload: {
+    description: &#39;new Description&#39;,
+    id: result.profile.id
+  }
+});</code></pre>
 </div></div>
 <div class="member method"><h2 id="methods">Methods</h2>
 <ul class="methods"><li><h3 id="methods_eventreceived">eventReceived(event)</h3>

@@ -1,7 +1,7 @@
 angular.module('ngCQRS')
 
 /**
- * @ngdoc object
+ * @ngdoc service
  * @name ngCQRS.service:StoreService
  *
  * @description
@@ -101,11 +101,25 @@ angular.module('ngCQRS')
     }
 
     /**
-     * @ngdoc object
+     * @ngdoc service
+     * @kind function
      * @name ngCQRS.service:Store
      *
      * @description
      *  The store allows for querying modelViews and registering for subsequent events on that viewModelName.
+     *
+     *  ### Usage
+     *  In your angular controller, you can query a viewModel and keep getting updates on events:
+     *
+     *  ```javascript
+var store = StoreService.createForController($scope);
+
+store.for('profile').do(function (personDetails) {
+  $scope.personDetails = personDetails;
+});
+     *  ```
+     *
+     *  Make sure to register an appropriate denormalizer function (see {@link ngCQRS.service:DenormalizationService#registerDenormalizerFunction DenormalizationService})
      */
     var StoreObject = function (scopeId) {
 

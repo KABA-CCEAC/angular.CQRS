@@ -7,6 +7,23 @@ angular.module('ngCQRS')
  *
  * @description
  * Handles the configuration of the CQRS module.
+ *
+ *
+ * ### Usage
+ *  In your angular controller, you can send commands to the server.
+ *
+ *  ```javascript
+$scope.onButtonClick = function () {
+  CQRS.sendCommand({
+    command: 'changeProfile',
+    aggregateType: 'profile',
+    payload: {
+      description: 'new Description',
+      id: $scope.profile.id
+    }
+  });
+};
+ *  ```
  */
   .provider('CQRS', function CQRS() {
 
@@ -99,11 +116,40 @@ angular.module('ngCQRS')
 
     /**
      * @ngdoc service
-     * @kind function
      * @name ngCQRS.service:CQRS
      *
      * @description
      * Is used to send commands and define the specific channel over which messages will be sent.
+     *
+     * ### Usage
+     *
+     * In order to connect angular.CQRS to your websocket / long polling solution, wire up commands and events.
+     *
+     * ```javascript
+var mySocket = io();
+
+// pass in events from your socket
+mySocket.on('events', function (data) {
+  CQRS.eventReceived(data);
+});
+
+// pass commands to your socket
+CQRS.onCommand(function (data) {
+  mySocket.emit('commands', data);
+});
+     *  ```
+     * To send Commands to the server:
+     *
+     * ```javascript
+CQRS.sendCommand({
+  command: 'changeProfile',
+  aggregateType: 'profile',
+  payload: {
+    description: 'new Description',
+    id: result.profile.id
+  }
+});
+     *  ```
      */
     this.$get = function ($q, $rootScope, $http) {
 

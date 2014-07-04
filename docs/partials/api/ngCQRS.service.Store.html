@@ -1,10 +1,18 @@
 <h1><code ng:non-bindable="">Store</code>
-<div><span class="hint">object in module <code ng:non-bindable="">ngCQRS</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ngCQRS</code>
 </span>
 </div>
 </h1>
 <div><h2 id="description">Description</h2>
 <div class="description"><div class="ngcqrs-service-page ngcqrs-service-store-page"><p>The store allows for querying modelViews and registering for subsequent events on that viewModelName.</p>
+<h5 id="description_usage">Usage</h5>
+<p>In your angular controller, you can query a viewModel and keep getting updates on events:</p>
+<pre><code class="lang-javascript">var store = StoreService.createForController($scope);
+
+store.for(&#39;profile&#39;).do(function (personDetails) {
+ $scope.personDetails = personDetails;
+});</code></pre>
+<p>Make sure to register an appropriate denormalizer function (see <a href="#/api/ngCQRS.service:DenormalizationService#registerdenormalizerfunction">DenormalizationService</a>)</p>
 </div></div>
 <div class="member method"><h2 id="methods">Methods</h2>
 <ul class="methods"><li><h3 id="methods_do">do(callback)</h3>
