@@ -1,10 +1,17 @@
 <h1><code ng:non-bindable="">DenormalizationService</code>
-<div><span class="hint">object in module <code ng:non-bindable="">ngCQRS</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ngCQRS</code>
 </span>
 </div>
 </h1>
 <div><h2 id="description">Description</h2>
 <div class="description"><div class="ngcqrs-service-page ngcqrs-service-denormalizationservice-page"><p>Used to configure denormalizers.</p>
+<h5 id="description_usage">Usage</h5>
+<pre><code class="lang-javascript">DenormalizationService.registerDenormalizerFunction({
+  viewModelName: &#39;profile&#39;,
+  eventName: &#39;profileChanged&#39;
+}, function (oldData, payload) {
+  return angular.extend(oldData, payload);
+});</code></pre>
 </div></div>
 <div class="member method"><h2 id="methods">Methods</h2>
 <ul class="methods"><li><h3 id="methods_getdenormalizerfunctions">getDenormalizerFunctions(eventName, aggregateType)</h3>
