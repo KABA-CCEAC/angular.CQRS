@@ -10,7 +10,7 @@ NG_DOCS={
       "type": "object",
       "moduleName": "ngCQRS",
       "shortDescription": "Handles the configuration of the CQRS module.",
-      "keywords": "$scope aggregatetype angular api changeprofile command commands configuration controller cqrs description event events factory form function generate generates handles identifier incoming javascript modify module ngcqrs object onbuttonclick optional parameter parameters parse parser parserfunction pass payload profile provider query registers response responses returned send sendcommand server setqueryparser seturlfactory string tourlgetparameterstring url urlfactoryfunction urls usage viewmodelname"
+      "keywords": "angular api configuration cqrs event events factory form function generate generates handles identifier incoming modify module ngcqrs object optional parameter parameters parse parser parserfunction pass provider query registers response responses returned setqueryparser seturlfactory string tourlgetparameterstring url urlfactoryfunction urls viewmodelname"
     },
     {
       "section": "api",
