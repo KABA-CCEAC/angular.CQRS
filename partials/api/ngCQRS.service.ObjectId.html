@@ -1,0 +1,39 @@
+<h1><code ng:non-bindable="">ObjectId</code>
+<div><span class="hint">service in module <code ng:non-bindable="">ngCQRS</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="ngcqrs-service-page ngcqrs-service-objectid-page"><p>Used to obtain a objectId that mimics how WCF serializes a object of type MongoDB.Bson.ObjectId
+and converts between that format and the standard 24 character representation.
+Inspired by <a href="https://github.com/justaprogrammer/ObjectId.js">https://github.com/justaprogrammer/ObjectId.js</a></p>
+<h5 id="description_usage">Usage</h5>
+<pre><code class="lang-javascript">mymodule.service(&#39;MyService&#39;, function(ObjectId){
+
+var objectIdOne = ObjectId();
+var objectIdTwo = ObjectId(0, 0, 0, 0x00ffffff);
+var objectIdThree = ObjectId(&#39;507f1f77bcf86cd799439011&#39;);
+console.log(objectIdOne.toArray());
+console.log(objectIdThree.toArray());
+
+});</code></pre>
+</div></div>
+<div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_objectid">ObjectId(timestamp, machine, pid, increment)</h3>
+<div class="objectid"><h5 id="methods_objectid_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>timestamp</td><td><a href="" class="label type-hint type-hint-number">number</a></td><td><div class="ngcqrs-service-page ngcqrs-service-objectid-objectid-page"><p>Optional Unix timestamp</p>
+</div></td></tr><tr><td>machine</td><td><a href="" class="label type-hint type-hint-number">number</a></td><td><div class="ngcqrs-service-page ngcqrs-service-objectid-objectid-page"><p>Optional machine identifier</p>
+</div></td></tr><tr><td>pid</td><td><a href="" class="label type-hint type-hint-number">number</a></td><td><div class="ngcqrs-service-page ngcqrs-service-objectid-objectid-page"><p>Optional process id</p>
+</div></td></tr><tr><td>increment</td><td><a href="" class="label type-hint type-hint-number">number</a></td><td><div class="ngcqrs-service-page ngcqrs-service-objectid-objectid-page"><p>Optional increment</p>
+</div></td></tr></tbody></table></div>
+</li>
+<li><h3 id="methods_toarray">toArray()</h3>
+<div class="toarray"><div class="ngcqrs-service-page ngcqrs-service-objectid-toarray-page"><p>Returns the ObjectId instance as byte array</p>
+</div></div>
+</li>
+<li><h3 id="methods_tostring">toString()</h3>
+<div class="tostring"><div class="ngcqrs-service-page ngcqrs-service-objectid-tostring-page"><p>Returns the 24 character string representation</p>
+</div></div>
+</li>
+</ul>
+</div>
+</div>
