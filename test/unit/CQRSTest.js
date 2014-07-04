@@ -91,11 +91,34 @@ describe('CQRS', function () {
           aggregateType: 'person'
         });
 
-        expect(commandSent).to.eql({
-          command: 'move',
-          aggregateType: 'person',
-          payload: dummyPayload
+        // CQRS will assign a unique command id!
+        expect(commandSent.id).not.to.be(undefined);
+        expect(commandSent.command).to.be('move');
+        expect(commandSent.aggregateType).to.be('person');
+        expect(commandSent.payload).to.eql(dummyPayload);
+
+      });
+
+      it('should not override already specified command id', function () {
+
+        var dummyPayload = {id: 123, address: 'Heimweg'} , commandSent = {};
+        CQRS.onCommand(function (data) {
+          commandSent = data;
         });
+
+        CQRS.sendCommand({
+          id: 'customId-123',
+          command: 'move',
+          payload: dummyPayload,
+          aggregateType: 'person'
+        });
+
+        // CQRS will not override command id!
+        expect(commandSent.id).to.be('customId-123');
+        expect(commandSent.command).to.be('move');
+        expect(commandSent.aggregateType).to.be('person');
+        expect(commandSent.payload).to.eql(dummyPayload);
+
       });
 
 
@@ -106,12 +129,94 @@ describe('CQRS', function () {
           commandSent = data;
         });
 
-        CQRS.sendCommand({command: 'move', payload: dummyPayload});
-
-        expect(commandSent).to.eql({
+        CQRS.sendCommand({
           command: 'move',
           payload: dummyPayload
         });
+
+        expect(commandSent.command).to.be('move');
+        expect(commandSent.payload).to.eql(dummyPayload);
+
+      });
+
+      it('should invoke "onCommand"-callback ', function (done) {
+
+        var commandId = 'customId-444';
+
+        CQRS.sendCommand({
+          id: commandId,
+          command: 'move',
+          payload: {attribute: 'one'}
+        }, function callback() {
+          // this will be invoked as soon as the event triggered by this command returned
+          done();
+        });
+
+        // this is called by the Store, in real-life
+        CQRS.onEvent(function () {
+          // foo
+        });
+
+        // simulate event from server
+        CQRS.eventReceived({
+          commandId: commandId
+        });
+
+      });
+
+      it('should invoke "onCommand"-callback only once!', function (done) {
+
+        var commandId = 'customId-444',
+          callbackInvokeCounter = 0;
+
+        CQRS.sendCommand({
+          id: commandId,
+          command: 'move',
+          payload: {attribute: 'one'}
+        }, function callback() {
+          callbackInvokeCounter++;
+          // should only get invoked once!
+          expect(callbackInvokeCounter).to.be.lessThan(2);
+        });
+
+        // this is called by the Store, in real-life
+        CQRS.onEvent(function () {
+          // foo
+        });
+
+        // simulate event from server
+        CQRS.eventReceived({
+          commandId: commandId
+        });
+
+        // simulate second event from server with same commandId
+        CQRS.eventReceived({
+          commandId: commandId
+        });
+
+        // if callback is not invoked twice within 1/2 second,
+        // we assume that the callback was properly removed after first invocation.
+        setTimeout(done, 500);
+
+      });
+
+
+      it('should allow to specify a callback function', function () {
+        CQRS.sendCommand({
+          command: 'move',
+          payload: {attribute: 'one'}
+        }, function callback() {
+          // this will be invoked as soon as the event triggered by this command returned
+        });
+      });
+
+      it('should not allow to pass a non-function as a callback', function () {
+        expect(function () {
+          CQRS.sendCommand({
+            command: 'move',
+            payload: {attribute: 'one'}
+          }, 'thisIsNotAFunction');
+        }).to.throwError();
       });
 
     });

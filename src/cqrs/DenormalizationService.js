@@ -10,12 +10,12 @@ angular.module('ngCQRS')
  * ### Usage
  *
  *  ```javascript
-DenormalizationService.registerDenormalizerFunction({
-  viewModelName: 'profile',
-  eventName: 'profileChanged'
-}, function (oldData, payload) {
-  return angular.extend(oldData, payload);
-});
+ * DenormalizationService.registerDenormalizerFunction({
+ *  viewModelName: 'profile',
+ *  eventName: 'profileChanged'
+ * }, function (oldData, payload) {
+ *  return angular.extend(oldData, payload);
+ * });
  *  ```
  *
  */

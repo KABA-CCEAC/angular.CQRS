@@ -10,6 +10,7 @@ module.exports = function (config) {
       'src/cqrs/**/*.js',
       'test/testUtils/**/*.js',
       'test/unit/**/*.js'
+//      'test/unit/ObjectIdServiceTest.js'
     ],
 
     exclude: [

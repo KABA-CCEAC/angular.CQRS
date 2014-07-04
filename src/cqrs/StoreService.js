@@ -112,14 +112,14 @@ angular.module('ngCQRS')
      *  In your angular controller, you can query a viewModel and keep getting updates on events:
      *
      *  ```javascript
-var store = StoreService.createForController($scope);
-
-store.for('profile').do(function (personDetails) {
-  $scope.personDetails = personDetails;
-});
+     * var store = StoreService.createForController($scope);
+     *
+     * store.for('profile').do(function (personDetails) {
+     *   $scope.personDetails = personDetails;
+     * });
      *  ```
      *
-     *  Make sure to register an appropriate denormalizer function (see {@link ngCQRS.service:DenormalizationService#registerDenormalizerFunction DenormalizationService})
+     *  Make sure to register an appropriate denormalizer function (see {@link ngCQRS.service:DenormalizationService DenormalizationService})
      */
     var StoreObject = function (scopeId) {
 

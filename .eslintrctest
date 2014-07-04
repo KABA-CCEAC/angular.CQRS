@@ -12,6 +12,7 @@
       "no-undef":1
    },
    "globals": {
+      "setTimeout":false,
       "angular": false,
       "it": false,
       "describe": false,

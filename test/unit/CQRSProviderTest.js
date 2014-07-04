@@ -74,4 +74,18 @@ describe('CQRSProvider', function () {
     });
   });
 
+  describe('#setCommandIdExtractionFunction()', function () {
+    it('should set commandId extraction function', function () {
+      CQRSProvider.setCommandIdExtractionFunction(function (event) {
+        return event.mySpecialCommandIdAttributeName;
+      });
+    });
+
+    it('should throw on invalid function', function () {
+      expect(function () {
+        CQRSProvider.setCommandIdExtractionFunction('notAFunction');
+      }).to.throwError();
+    });
+  });
+
 });

@@ -11,7 +11,6 @@ angular.module('ngCQRS')
  */
   .provider('CQRS', function CQRS() {
 
-
     var urlFactory = function () {
         throw 'Please specify a urlFactory for CQRS queries. CQRSProvider.setUrlFactory(function (viewModelName) { .... }';
       },
@@ -20,6 +19,9 @@ angular.module('ngCQRS')
       },
       eventParserFunction = function (responseData) {
         return responseData;
+      },
+      commandIdExtractionFunction = function (event) {
+        return event.commandId;
       };
 
     function throwIfInvalidFunction(func) {
@@ -27,6 +29,23 @@ angular.module('ngCQRS')
         throw 'Please specify a valid function!';
       }
     }
+
+    /**
+     * @ngdoc object
+     * @name ngCQRS.provider:CQRSProvider#setCommandIdExtractionFunction
+     * @methodOf ngCQRS.provider:CQRSProvider
+     * @kind function
+     *
+     * @description
+     * Registers a function to extract the commandId from an incoming event.
+     *
+     * @param {function} commandIdFunction The comanndId extraction function.
+     *  Angular.CQRS will pass in the received event (after parsing).
+     */
+    this.setCommandIdExtractionFunction = function (commandIdFunction) {
+      throwIfInvalidFunction(commandIdFunction);
+      commandIdExtractionFunction = commandIdFunction;
+    };
 
     /**
      * @ngdoc object
@@ -110,32 +129,36 @@ angular.module('ngCQRS')
      * In order to connect angular.CQRS to your websocket / long polling solution, wire up commands and events.
      *
      * ```javascript
-var mySocket = io();
-
-// pass in events from your socket
-mySocket.on('events', function (data) {
-  CQRS.eventReceived(data);
-});
-
-// pass commands to your socket
-CQRS.onCommand(function (data) {
-  mySocket.emit('commands', data);
-});
+     * var mySocket = io();
+     *
+     * // pass in events from your socket
+     * mySocket.on('events', function (data) {
+     *  CQRS.eventReceived(data);
+     * });
+     *
+     * // pass commands to your socket
+     * CQRS.onCommand(function (data) {
+     *  mySocket.emit('commands', data);
+     * });
      *  ```
      * To send Commands to the server:
      *
      * ```javascript
-CQRS.sendCommand({
-  command: 'changeProfile',
-  aggregateType: 'profile',
-  payload: {
-    description: 'new Description',
-    id: result.profile.id
-  }
-});
+     * CQRS.sendCommand({
+     *  command: 'changeProfile',
+     *  aggregateType: 'profile',
+     *  payload: {
+     *    description: 'new Description',
+     *    id: result.profile.id
+     *  }
+     * });
      *  ```
      */
-    this.$get = function ($q, $rootScope, $http) {
+    this.$get = function ($q, $rootScope, $http, ObjectId) {
+
+
+      var commandCallbacks = {};
+
 
       /**
        * Send a HTTP GET request to the backend.
@@ -152,6 +175,35 @@ CQRS.sendCommand({
         return deferred.promise;
       }
 
+      function augmentCommandObject(command) {
+        if (angular.isUndefined(command.id)) {
+          command.id = ObjectId().toString();
+        }
+        return command;
+      }
+
+
+      function storeCommandCallbackFunction(commandId, callbackFunction) {
+        if (angular.isUndefined(callbackFunction)) {
+          return;
+        }
+
+        if (typeof callbackFunction !== 'function') {
+          throw 'Please specify a valid callback function...';
+        }
+
+        commandCallbacks[commandId] = callbackFunction;
+      }
+
+      function invokeCommandCallback(event) {
+        var commandId = commandIdExtractionFunction(event);
+        var callback = commandCallbacks[commandId];
+        if (angular.isDefined(callback)) {
+          callback();
+          commandCallbacks[commandId] = undefined;
+        }
+      }
+
       /**
        * @ngdoc function
        * @name ngCQRS.service:CQRS#sendCommand
@@ -161,9 +213,12 @@ CQRS.sendCommand({
        * Sends a command using the function registered by {@link ngCQRS.service:CQRS#onCommand onCommand}
        *
        * @param {object} commandObject The command object to send to the backend
+       * @param {function} callbackFunction A optional callback function that is invoked once, as soon as the correspondant event returns from the server
        */
-      function sendCommand(commandObject) {
-        $rootScope.$emit('CQRS:commands', commandObject);
+      function sendCommand(commandObject, callbackFunction) {
+        var augmentedCommandObject = augmentCommandObject(commandObject);
+        storeCommandCallbackFunction(augmentedCommandObject.id, callbackFunction);
+        $rootScope.$emit('CQRS:commands', augmentedCommandObject);
       }
 
       /**
@@ -171,7 +226,9 @@ CQRS.sendCommand({
        */
       function onEvent(listener) {
         $rootScope.$on('CQRS:events', function (angularEvent, data) {
-          listener(eventParserFunction(data));
+          var event = eventParserFunction(data);
+          invokeCommandCallback(event);
+          listener(event);
         });
       }
 
