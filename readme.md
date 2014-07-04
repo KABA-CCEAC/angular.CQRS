@@ -50,12 +50,12 @@ In order to connect angular.CQRS to your websocket / long polling solution, wire
 
     // pass in events from your socket
     mySocket.on('events', function (data) {
-    CQRS.eventReceived(data);
+      CQRS.eventReceived(data);
     });
 
     // pass commands to your socket
     CQRS.onCommand(function (data) {
-    mySocket.emit('commands', data);
+      mySocket.emit('commands', data);
     });
 
 

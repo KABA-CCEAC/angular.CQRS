@@ -8,22 +8,6 @@ angular.module('ngCQRS')
  * @description
  * Handles the configuration of the CQRS module.
  *
- *
- * ### Usage
- *  In your angular controller, you can send commands to the server.
- *
- *  ```javascript
-$scope.onButtonClick = function () {
-  CQRS.sendCommand({
-    command: 'changeProfile',
-    aggregateType: 'profile',
-    payload: {
-      description: 'new Description',
-      id: $scope.profile.id
-    }
-  });
-};
- *  ```
  */
   .provider('CQRS', function CQRS() {
 
