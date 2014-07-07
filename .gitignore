@@ -2,5 +2,4 @@
 node_modules
 *.orig
 src/bower_components
-dist
 coverage
