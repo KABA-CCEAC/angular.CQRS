@@ -13,6 +13,9 @@ Tested with AngularJS 1.2.18
 | master        | [![Build Status](https://api.travis-ci.org/KABA-CCEAC/angular.CQRS.png?branch=master)](https://travis-ci.org/KABA-CCEAC/angular.CQRS) |
 | develop        | [![Build Status](https://api.travis-ci.org/KABA-CCEAC/angular.CQRS.png?branch=develop)](https://travis-ci.org/KABA-CCEAC/angular.CQRS) |
 
+### Docu
+
+[API documentation](http://kaba-cceac.github.io/angular.CQRS/#/api)
 
 # Usage
 
