@@ -85,7 +85,7 @@ angular.module('ngCQRS')
       });
 
       orphanedStoreItems.forEach(function (orphan) {
-        scopeCallbacks[orphan] = undefined;
+        delete scopeCallbacks[orphan];
       });
     }
 
