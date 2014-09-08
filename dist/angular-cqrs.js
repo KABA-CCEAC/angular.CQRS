@@ -172,7 +172,9 @@ angular.module('ngCQRS')
           .success(function (data) {
             deferred.resolve(queryParserFunction(data));
           })
-          .error(deferred.reject);
+          .error(function (data, status) {
+            deferred.reject({data: data, status: status});
+          });
         return deferred.promise;
       }
 
@@ -597,6 +599,9 @@ angular.module('ngCQRS')
       callback(queryResult);
     }
 
+    function handleQueryResponseError(error, errorCallback) {
+      errorCallback(error.data, error.status);
+    }
 
     function removeCallbacksForScope(scope) {
 
@@ -621,11 +626,13 @@ angular.module('ngCQRS')
     /**
      *  Queries the server for the required model. Will update given Scope on server events
      */
-    function get(viewModelName, parameters, callback, scopeId) {
+    function get(viewModelName, parameters, callback, errorCallback, scopeId) {
       throwErrorIfInvalidGetArguments(viewModelName, parameters, callback);
       var queryPromise = CQRS.query(viewModelName, parameters);
       queryPromise.then(function (data) {
         handleQueryResponse(data, viewModelName, callback, scopeId);
+      }, function (error) {
+        handleQueryResponseError(error, errorCallback);
       });
     }
 
@@ -661,7 +668,7 @@ angular.module('ngCQRS')
        *  Specify the a viewModelName and optional url parameters
        *
        *  @param {string} viewModelName The identifier of the viewModelName
-       *  @param {object} parameters An optional object containing url parameters. This will be passed toghether with the viewModelName identifier into your {@link ngCQRS.provider:CQRSProvider#setUrlFactory urlFactory} function.
+       *  @param {object} parameters An optional object containing url parameters. This will be passed together with the viewModelName identifier into your {@link ngCQRS.provider:CQRSProvider#setUrlFactory urlFactory} function.
        */
       this.for = function (viewModelName, parameters) {
         this.viewModelName = viewModelName;
@@ -679,9 +686,12 @@ angular.module('ngCQRS')
        *
        *  @param {function} callback Function that is called on first query response and on subsequent events.
        *    Angular.CQRS will pass in the denormalized object (See {@link ngCQRS.provider:CQRSProvider#registerDenormalizerFunctions registerDenormalizerFunctions}).
+       *
+       *  @param {function} errorCallback Function that is called on a http error during the first query request.
+       *    Angular.CQRS will pass in the received data and the http status code.
        */
-      this.do = function (callback) {
-        get(this.viewModelName, this.parameters, callback, scopeId);
+      this.do = function (callback, errorCallback) {
+        get(this.viewModelName, this.parameters, callback, errorCallback, scopeId);
       };
     };
 
