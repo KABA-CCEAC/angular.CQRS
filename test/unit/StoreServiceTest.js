@@ -219,6 +219,27 @@ describe('StoreService', function () {
 
       expect(response.id).to.equal(dummyDataId);
     });
+
+    it('should invoke error callback', function () {
+      var dummyDataId = '1234';
+
+      $httpBackend.expect('GET', 'http://www.example.com/api/1234').respond(404, {some: 'data'});
+
+      var data, status;
+      store.for(dummyDataId, {}).do(function () {
+        expect('Should not be invoked').to.be(true);
+      }, function (_data, _status) {
+        data = _data;
+        status = _status;
+      });
+
+      $httpBackend.flush();
+
+      expect(data).to.eql({ some: 'data' });
+      expect(status).to.be(404);
+
+    });
+
   });
 
   describe('#onEvent()', function () {

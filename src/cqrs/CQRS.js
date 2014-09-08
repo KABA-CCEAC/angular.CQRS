@@ -171,7 +171,9 @@ angular.module('ngCQRS')
           .success(function (data) {
             deferred.resolve(queryParserFunction(data));
           })
-          .error(deferred.reject);
+          .error(function (data, status) {
+            deferred.reject({data: data, status: status});
+          });
         return deferred.promise;
       }
 
