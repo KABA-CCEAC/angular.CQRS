@@ -159,6 +159,7 @@ angular.module('ngCQRS')
 
 
       var commandCallbacks = {};
+      var commandDeferreds = {};
 
 
       /**
@@ -198,12 +199,22 @@ angular.module('ngCQRS')
         commandCallbacks[commandId] = callbackFunction;
       }
 
-      function invokeCommandCallback(event) {
+      function storeCommandDeferred(commandId, deferred) {
+        commandDeferreds[commandId] = deferred;
+      }
+
+      function invokeCommandCallbackOrResolvePromise(event) {
         var commandId = commandIdExtractionFunction(event);
         var callback = commandCallbacks[commandId];
         if (angular.isDefined(callback)) {
           callback();
           commandCallbacks[commandId] = undefined;
+        }
+
+        var deferred = commandDeferreds[commandId];
+        if (angular.isDefined(deferred)) {
+          deferred.resolve();
+          commandDeferreds[commandId] = undefined;
         }
       }
 
@@ -217,11 +228,17 @@ angular.module('ngCQRS')
        *
        * @param {object} commandObject The command object to send to the backend
        * @param {function} callbackFunction A optional callback function that is invoked once, as soon as the correspondant event returns from the server
+       * @returns {*} Returns a promise object that will be resolved as soon as the correspondant event returns from the server (alternative to the callback function)
        */
       function sendCommand(commandObject, callbackFunction) {
         var augmentedCommandObject = augmentCommandObject(commandObject);
-        storeCommandCallbackFunction(augmentedCommandObject.id, callbackFunction);
+
         $rootScope.$emit('CQRS:commands', augmentedCommandObject);
+
+        storeCommandCallbackFunction(augmentedCommandObject.id, callbackFunction);
+        var deferred = $q.defer();
+        storeCommandDeferred(augmentedCommandObject.id, deferred);
+        return deferred.promise;
       }
 
       /**
@@ -230,7 +247,7 @@ angular.module('ngCQRS')
       function onEvent(listener) {
         $rootScope.$on('CQRS:events', function (angularEvent, data) {
           var event = eventParserFunction(data);
-          invokeCommandCallback(event);
+          invokeCommandCallbackOrResolvePromise(event);
           listener(event);
         });
       }
