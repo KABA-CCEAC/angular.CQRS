@@ -19,7 +19,7 @@ NG_DOCS={
       "type": "service",
       "moduleName": "ngCQRS",
       "shortDescription": "Is used to send commands and define the specific channel over which messages will be sent.",
-      "keywords": "aggregatetype angular api application arrived backend call callback callbackfunction changeprofile channel command commandobject commands connect connection correspondant cqrs data define description emit event eventreceived events function invoked io javascript listener long message messages mysocket ngcqrs object oncommand optional order pass payload polling profile received register registered result returns send sendcommand sends server service socket solution specific usage var websocket wire"
+      "keywords": "aggregatetype angular api application arrived backend call callback callbackfunction changeprofile channel command commandobject commands connect connection correspondant cqrs data define description emit event eventreceived events function invoked io javascript listener long message messages mysocket ngcqrs object oncommand optional order pass payload polling profile promise received register registered resolved result returns send sendcommand sends server service socket solution specific usage var websocket wire"
     },
     {
       "section": "api",
