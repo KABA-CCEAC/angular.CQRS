@@ -187,6 +187,10 @@ angular.module('ngCQRS')
 
 
       function storeCommandCallbackFunction(commandId, callbackFunction) {
+        if (angular.isUndefined(callbackFunction)) {
+          return;
+        }
+
         if (typeof callbackFunction !== 'function') {
           throw 'Please specify a valid callback function...';
         }
@@ -223,21 +227,17 @@ angular.module('ngCQRS')
        *
        * @param {object} commandObject The command object to send to the backend
        * @param {function} callbackFunction A optional callback function that is invoked once, as soon as the correspondant event returns from the server
+       * @returns {*} Returns a promise object that will be resolved as soon as the correspondant event returns from the server (alternative to the callback function)
        */
       function sendCommand(commandObject, callbackFunction) {
         var augmentedCommandObject = augmentCommandObject(commandObject);
 
         $rootScope.$emit('CQRS:commands', augmentedCommandObject);
 
-        if (angular.isDefined(callbackFunction)) {
-          storeCommandCallbackFunction(augmentedCommandObject.id, callbackFunction);
-          return undefined;
-        } else {
-          // if no callback function is specified, we return a promise
-          var deferred = $q.defer();
-          storeCommandDeferred(augmentedCommandObject.id, deferred);
-          return deferred.promise;
-        }
+        storeCommandCallbackFunction(augmentedCommandObject.id, callbackFunction);
+        var deferred = $q.defer();
+        storeCommandDeferred(augmentedCommandObject.id, deferred);
+        return deferred.promise;
       }
 
       /**

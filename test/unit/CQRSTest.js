@@ -219,7 +219,7 @@ describe('CQRS', function () {
 
       });
 
-      // alternatively, you can use the promise object that is returned (if you do not specify a callbackfunction directly)
+      // alternatively, you can use the promise object that is returned
       // it will be resolved as soon as the event triggered by this command returned ( same as callback function )
       it('should return a promise object', function () {
         var promise = CQRS.sendCommand({
@@ -228,9 +228,10 @@ describe('CQRS', function () {
         });
 
         expect(promise).not.to.be(undefined);
+        expect(promise.then).to.be.a('function');
       });
 
-      it('should not return a promise object if callback function is specified directly', function () {
+      it('should also return a promise object if callback function is specified directly', function () {
         var promise = CQRS.sendCommand({
           command: 'move',
           payload: {attribute: 'one'}
@@ -238,7 +239,8 @@ describe('CQRS', function () {
           // my callback
         });
 
-        expect(promise).to.be(undefined);
+        expect(promise).not.to.be(undefined);
+        expect(promise.then).to.be.a('function');
       });
 
       it('should resolve promise', function (done) {
@@ -264,7 +266,46 @@ describe('CQRS', function () {
         CQRS.eventReceived({
           commandId: commandId
         });
-        
+
+        // manually apply rootScope which triggers promises to be resolved
+        $rootScope.$apply();
+
+      });
+      it('should resolve promise and invoke callback', function (done) {
+
+        var callbackInvoked = false;
+        var promiseResolved = false;
+
+        var commandId = 44;
+        var promise = CQRS.sendCommand({
+          id: commandId,
+          command: 'move',
+          payload: {attribute: 'one'}
+        }, function () {
+          callbackInvoked = true;
+          if (promiseResolved) {
+            done();
+          }
+        });
+
+        promise.then(function () {
+          promiseResolved = true;
+          if (callbackInvoked) {
+            done();
+          }
+        });
+
+
+        // this is called by the Store, in real-life
+        CQRS.onEvent(function () {
+          // foo
+        });
+
+        // simulate event from server
+        CQRS.eventReceived({
+          commandId: commandId
+        });
+
         // manually apply rootScope which triggers promises to be resolved
         $rootScope.$apply();
 
