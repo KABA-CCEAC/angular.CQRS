@@ -158,6 +158,7 @@ angular.module('ngCQRS')
 
 
       var commandCallbacks = {};
+      var commandDeferreds = {};
 
 
       /**
@@ -186,10 +187,6 @@ angular.module('ngCQRS')
 
 
       function storeCommandCallbackFunction(commandId, callbackFunction) {
-        if (angular.isUndefined(callbackFunction)) {
-          return;
-        }
-
         if (typeof callbackFunction !== 'function') {
           throw 'Please specify a valid callback function...';
         }
@@ -197,12 +194,22 @@ angular.module('ngCQRS')
         commandCallbacks[commandId] = callbackFunction;
       }
 
-      function invokeCommandCallback(event) {
+      function storeCommandDeferred(commandId, deferred) {
+        commandDeferreds[commandId] = deferred;
+      }
+
+      function invokeCommandCallbackOrResolvePromise(event) {
         var commandId = commandIdExtractionFunction(event);
         var callback = commandCallbacks[commandId];
         if (angular.isDefined(callback)) {
           callback();
           commandCallbacks[commandId] = undefined;
+        }
+
+        var deferred = commandDeferreds[commandId];
+        if (angular.isDefined(deferred)) {
+          deferred.resolve();
+          commandDeferreds[commandId] = undefined;
         }
       }
 
@@ -219,8 +226,18 @@ angular.module('ngCQRS')
        */
       function sendCommand(commandObject, callbackFunction) {
         var augmentedCommandObject = augmentCommandObject(commandObject);
-        storeCommandCallbackFunction(augmentedCommandObject.id, callbackFunction);
+
         $rootScope.$emit('CQRS:commands', augmentedCommandObject);
+
+        if (angular.isDefined(callbackFunction)) {
+          storeCommandCallbackFunction(augmentedCommandObject.id, callbackFunction);
+          return undefined;
+        } else {
+          // if no callback function is specified, we return a promise
+          var deferred = $q.defer();
+          storeCommandDeferred(augmentedCommandObject.id, deferred);
+          return deferred.promise;
+        }
       }
 
       /**
@@ -229,7 +246,7 @@ angular.module('ngCQRS')
       function onEvent(listener) {
         $rootScope.$on('CQRS:events', function (angularEvent, data) {
           var event = eventParserFunction(data);
-          invokeCommandCallback(event);
+          invokeCommandCallbackOrResolvePromise(event);
           listener(event);
         });
       }

@@ -139,6 +139,25 @@ describe('CQRS', function () {
 
       });
 
+
+      it('should allow to specify a callback function', function () {
+        CQRS.sendCommand({
+          command: 'move',
+          payload: {attribute: 'one'}
+        }, function callback() {
+          // this will be invoked as soon as the event triggered by this command returned
+        });
+      });
+
+      it('should not allow to pass a non-function as a callback', function () {
+        expect(function () {
+          CQRS.sendCommand({
+            command: 'move',
+            payload: {attribute: 'one'}
+          }, 'thisIsNotAFunction');
+        }).to.throwError();
+      });
+
       it('should invoke "onCommand"-callback ', function (done) {
 
         var commandId = 'customId-444';
@@ -200,23 +219,55 @@ describe('CQRS', function () {
 
       });
 
-
-      it('should allow to specify a callback function', function () {
-        CQRS.sendCommand({
+      // alternatively, you can use the promise object that is returned (if you do not specify a callbackfunction directly)
+      // it will be resolved as soon as the event triggered by this command returned ( same as callback function )
+      it('should return a promise object', function () {
+        var promise = CQRS.sendCommand({
           command: 'move',
           payload: {attribute: 'one'}
-        }, function callback() {
-          // this will be invoked as soon as the event triggered by this command returned
         });
+
+        expect(promise).not.to.be(undefined);
       });
 
-      it('should not allow to pass a non-function as a callback', function () {
-        expect(function () {
-          CQRS.sendCommand({
-            command: 'move',
-            payload: {attribute: 'one'}
-          }, 'thisIsNotAFunction');
-        }).to.throwError();
+      it('should not return a promise object if callback function is specified directly', function () {
+        var promise = CQRS.sendCommand({
+          command: 'move',
+          payload: {attribute: 'one'}
+        }, function () {
+          // my callback
+        });
+
+        expect(promise).to.be(undefined);
+      });
+
+      it('should resolve promise', function (done) {
+
+        var commandId = 44;
+        var promise = CQRS.sendCommand({
+          id: commandId,
+          command: 'move',
+          payload: {attribute: 'one'}
+        });
+
+        promise.then(function () {
+          done();
+        });
+
+
+        // this is called by the Store, in real-life
+        CQRS.onEvent(function () {
+          // foo
+        });
+
+        // simulate event from server
+        CQRS.eventReceived({
+          commandId: commandId
+        });
+        
+        // manually apply rootScope which triggers promises to be resolved
+        $rootScope.$apply();
+
       });
 
     });
