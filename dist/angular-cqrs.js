@@ -203,17 +203,17 @@ angular.module('ngCQRS')
         commandDeferreds[commandId] = deferred;
       }
 
-      function invokeCommandCallbackOrResolvePromise(event) {
+      function invokeCommandCallbackAndResolvePromise(event) {
         var commandId = commandIdExtractionFunction(event);
         var callback = commandCallbacks[commandId];
         if (angular.isDefined(callback)) {
-          callback();
+          callback(event);
           commandCallbacks[commandId] = undefined;
         }
 
         var deferred = commandDeferreds[commandId];
         if (angular.isDefined(deferred)) {
-          deferred.resolve();
+          deferred.resolve(event);
           commandDeferreds[commandId] = undefined;
         }
       }
@@ -247,7 +247,7 @@ angular.module('ngCQRS')
       function onEvent(listener) {
         $rootScope.$on('CQRS:events', function (angularEvent, data) {
           var event = eventParserFunction(data);
-          invokeCommandCallbackOrResolvePromise(event);
+          invokeCommandCallbackAndResolvePromise(event);
           listener(event);
         });
       }

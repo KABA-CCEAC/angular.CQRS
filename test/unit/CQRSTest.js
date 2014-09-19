@@ -271,7 +271,7 @@ describe('CQRS', function () {
         $rootScope.$apply();
 
       });
-      it('should resolve promise and invoke callback', function (done) {
+      it('should resolve promise with event and invoke callback', function (done) {
 
         var callbackInvoked = false;
         var promiseResolved = false;
@@ -281,15 +281,19 @@ describe('CQRS', function () {
           id: commandId,
           command: 'move',
           payload: {attribute: 'one'}
-        }, function () {
+        }, function (event) {
           callbackInvoked = true;
+          expect(event).not.to.be(undefined);
+          expect(event.commandId).to.be(commandId);
           if (promiseResolved) {
             done();
           }
         });
 
-        promise.then(function () {
+        promise.then(function (event) {
           promiseResolved = true;
+          expect(event).not.to.be(undefined);
+          expect(event.commandId).to.be(commandId);
           if (callbackInvoked) {
             done();
           }
