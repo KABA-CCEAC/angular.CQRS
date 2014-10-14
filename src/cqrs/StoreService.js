@@ -26,7 +26,7 @@ angular.module('ngCQRS')
         angular.forEach(denormalizerFunctions, function (denormalizerFunction, viewModelName) {
           var scopeCallback = scopeCallbacks[viewModelName];
           if (angular.isDefined(scopeCallback)) {
-            scopeCallback.data = denormalizerFunction(scopeCallback.data, evt.payload);
+            scopeCallback.data = denormalizerFunction(scopeCallback.data, evt.payload, evt);
             scopeCallback.callbacks.forEach(function (callback) {
               callback.callbackFunction(scopeCallback.data);
             });

@@ -279,6 +279,30 @@ describe('StoreService', function () {
       expect(callback2).to.be(newAddress);
     });
 
+    it('should pass the complete event to subscribed callbacks on new event', function (done) {
+      var newAddress = {id: 123, street: 'Hauptweg'};
+      var originalEvent = {aggregateType: 'person', name: 'move', payload: newAddress};
+
+      DenormalizationService.registerDenormalizerFunction({
+        viewModelName: 'myProfile',
+        aggregateType: 'person',
+        eventName: 'move'
+      }, function (oldData, payload, event) {
+        expect(event).to.eql(originalEvent);
+        done();
+      });
+
+      $httpBackend.when('GET', 'http://www.example.com/api/myProfile').respond({foo: 'bar'});
+
+      store.for('myProfile', {}).do(function () {
+
+      });
+
+      $httpBackend.flush();
+
+      $rootScope.$emit('CQRS:events', originalEvent);
+    });
+
     it('should NOT notify callbacks on invalid event (missing resource identifier)', function () {
       var initialQueryData = {foo: 'bar'};
       $httpBackend.when('GET', 'http://www.example.com/api/myProfile').respond(initialQueryData);
