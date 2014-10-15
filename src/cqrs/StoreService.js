@@ -15,28 +15,29 @@ angular.module('ngCQRS')
       return (angular.isDefined(evt.payload) && angular.isDefined(evt.name));
     }
 
-    function init() {
-      // register for events and update our store with the new data
-      CQRS.onEvent(function (evt) {
-        if (!isValidDataModelUpdateEvent(evt)) {
-          return;
-        }
+    function onEventHandler(evt) {
+      if (!isValidDataModelUpdateEvent(evt)) {
+        return;
+      }
 
-        var denormalizerFunctions = DenormalizationService.getDenormalizerFunctions(evt.name, evt.aggregateType);
-        angular.forEach(denormalizerFunctions, function (denormalizerFunction, viewModelName) {
-          var scopeCallback = scopeCallbacks[viewModelName];
-          if (angular.isDefined(scopeCallback)) {
-            scopeCallback.data = denormalizerFunction(scopeCallback.data, evt.payload);
-            scopeCallback.callbacks.forEach(function (callback) {
-              callback.callbackFunction(scopeCallback.data);
-            });
-          }
-        });
-        $rootScope.$apply();
+      var denormalizerFunctions = DenormalizationService.getDenormalizerFunctions(evt.name, evt.aggregateType);
+      angular.forEach(denormalizerFunctions, function (denormalizerFunction, viewModelName) {
+        var scopeCallback = scopeCallbacks[viewModelName];
+        if (angular.isDefined(scopeCallback)) {
+          // invoke denormalizer function
+          scopeCallback.data = denormalizerFunction(scopeCallback.data, evt);
+
+          // invoke all handler callbacks (in controllers and services) with the denormalized data
+          scopeCallback.callbacks.forEach(function (callback) {
+            callback.callbackFunction(scopeCallback.data);
+          });
+        }
       });
+      $rootScope.$apply();
     }
 
-    init();
+    // register for events and update our store with the new data
+    CQRS.onEvent(onEventHandler);
 
     function throwErrorIfInvalidGetArguments(viewModelName, parameters, callback) {
       if (angular.isUndefined(parameters) || typeof parameters !== 'object') {
@@ -154,7 +155,7 @@ angular.module('ngCQRS')
        *  register a handler for events on the specified viewModelName
        *
        *  @param {function} callback Function that is called on first query response and on subsequent events.
-       *    Angular.CQRS will pass in the denormalized object (See {@link ngCQRS.provider:CQRSProvider#registerDenormalizerFunctions registerDenormalizerFunctions}).
+       *    Angular.CQRS will pass in the denormalized object (See {@link ngCQRS.service:DenormalizationService#registerDenormalizerFunction registerDenormalizerFunction}).
        *
        *  @param {function} errorCallback Function that is called on a http error during the first query request.
        *    Angular.CQRS will pass in the received data and the http status code.

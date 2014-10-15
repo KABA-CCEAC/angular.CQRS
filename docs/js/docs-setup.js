@@ -46,7 +46,7 @@ NG_DOCS={
       "type": "service",
       "moduleName": "ngCQRS",
       "shortDescription": "The store allows for querying modelViews and registering for subsequent events on that viewModelName.",
-      "keywords": "$scope allows angular api appropriate callback called code controller cqrs createforcontroller data denormalizationservice denormalized denormalizer error errorcallback events function handler http identifier javascript modelviews ngcqrs object optional parameters pass passed persondetails profile provider query querying received register registerdenormalizerfunctions registering request response service seturlfactory status store storeservice subsequent updates url urlfactory usage var viewmodel viewmodelname"
+      "keywords": "$scope allows angular api appropriate callback called code controller cqrs createforcontroller data denormalizationservice denormalized denormalizer error errorcallback events function handler http identifier javascript modelviews ngcqrs object optional parameters pass passed persondetails profile provider query querying received register registerdenormalizerfunction registering request response service seturlfactory status store storeservice subsequent updates url urlfactory usage var viewmodel viewmodelname"
     },
     {
       "section": "api",
