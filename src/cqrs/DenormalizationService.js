@@ -67,7 +67,7 @@ angular.module('ngCQRS')
      *    - `aggregateType` – `{string}` – An optional name of a aggregate type
      *
      * @param {function} denormalizerFunction The function used to merge (denormalized) event payload and original viewModelName data.
-     *    Angular.CQRS will pass in the original viewModelName data and the event payload.
+     *    Angular.CQRS will pass in the original viewModelName data and the event.
      *
      */
     function registerDenormalizerFunction(config, denormalizerFunction) {
