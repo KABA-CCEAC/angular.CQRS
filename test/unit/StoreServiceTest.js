@@ -210,7 +210,7 @@ describe('StoreService', function () {
         attributeOne: 'attributeOneValue'
       });
 
-      var response;
+      var response = {};
       store.for(dummyDataId, {}).do(function (result) {
         response = result;
       });
@@ -225,7 +225,7 @@ describe('StoreService', function () {
 
       $httpBackend.expect('GET', 'http://www.example.com/api/1234').respond(404, {some: 'data'});
 
-      var data, status;
+      var data = {}, status = 0;
       store.for(dummyDataId, {}).do(function () {
         expect('Should not be invoked').to.be(true);
       }, function (_data, _status) {
@@ -255,13 +255,13 @@ describe('StoreService', function () {
         viewModelName: 'myProfile',
         aggregateType: 'person',
         eventName: 'move'
-      }, function (oldData, payload) {
-        return payload;
+      }, function (oldData, event) {
+        return event.payload;
       });
 
       $httpBackend.when('GET', 'http://www.example.com/api/myProfile').respond({foo: 'bar'});
 
-      var callback1, callback2;
+      var callback1 = {}, callback2 = {};
       store.for('myProfile', {}).do(function (persons) {
         callback1 = persons;
       });
@@ -283,7 +283,7 @@ describe('StoreService', function () {
       var initialQueryData = {foo: 'bar'};
       $httpBackend.when('GET', 'http://www.example.com/api/myProfile').respond(initialQueryData);
 
-      var callback1, callback2;
+      var callback1 = {}, callback2 = {};
       store.for('myProfile', {}).do(function (persons) {
         callback1 = persons;
       });
@@ -305,7 +305,7 @@ describe('StoreService', function () {
       var initialQueryData = {foo: 'bar'};
       $httpBackend.when('GET', 'http://www.example.com/api/myProfile').respond(initialQueryData);
 
-      var callback1, callback2;
+      var callback1 = {}, callback2 = {};
       store.for('myProfile', {}).do(function (persons) {
         callback1 = persons;
       });
@@ -327,7 +327,7 @@ describe('StoreService', function () {
       var initialQueryData = {foo: 'bar'};
       $httpBackend.when('GET', 'http://www.example.com/api/myProfile').respond(initialQueryData);
 
-      var callback1 , callback2;
+      var callback1 = {} , callback2 = {};
       store.for('myProfile', {}).do(function (persons) {
         callback1 = persons;
       });
@@ -344,7 +344,6 @@ describe('StoreService', function () {
       expect(callback2.foo).to.be(initialQueryData.foo);
     });
 
-
     it('should invoke denormalizer and callback correctly on event', function () {
 
       var initialQueryData = {foo: 'bar'};
@@ -358,20 +357,62 @@ describe('StoreService', function () {
       $httpBackend.flush();
 
       var newAddress = {id: 123, street: 'Hauptweg'};
+      var event = {aggregateType: 'person', name: 'move', payload: newAddress};
       DenormalizationService.registerDenormalizerFunction({
         viewModelName: 'myProfile',
         aggregateType: 'person',
         eventName: 'move'
-      }, function (originalData, change) {
+      }, function (originalData, evt) {
         expect(originalData).to.eql(initialQueryData);
-        expect(change).to.eql(newAddress);
-        return change;
+        expect(evt).to.be(event);
+        expect(evt.payload).to.eql(newAddress);
+        return evt.payload;
       });
 
-      var event = {aggregateType: 'person', name: 'move', payload: newAddress};
       $rootScope.$emit('CQRS:events', event);
 
       expect(callbackData).to.eql([initialQueryData, newAddress]);
+    });
+
+    it('should invoke denormalizer and callbacks in two different services correctly', function () {
+
+      var initialQueryResponse = {foo: 'bar'};
+      $httpBackend.when('GET', 'http://www.example.com/api/myProfile').respond(initialQueryResponse);
+
+      var storeOne = StoreService.createForService();
+      var storeTwo = StoreService.createForService();
+      var callbackDataOne = [];
+      var callbackDataTwo = [];
+      storeOne.for('myProfile').do(function (data) {
+        callbackDataOne.push(data);
+      });
+      storeTwo.for('myProfile').do(function (data) {
+        callbackDataTwo.push(data);
+      });
+      $httpBackend.flush();
+
+      var cqrsEventChangedPayload = {id: 123, street: 'Hauptweg'};
+      var event = {aggregateType: 'person', name: 'move', payload: cqrsEventChangedPayload};
+      var denormalizerInvokeCounter = 0;
+      DenormalizationService.registerDenormalizerFunction({
+        viewModelName: 'myProfile',
+        aggregateType: 'person',
+        eventName: 'move'
+      }, function (originalData, evt) {
+        denormalizerInvokeCounter++;
+        expect(originalData).to.eql(initialQueryResponse);
+        expect(evt).to.be(event);
+        expect(evt.payload).to.eql(cqrsEventChangedPayload);
+        return evt.payload;
+      });
+
+      $rootScope.$emit('CQRS:events', event);
+
+      // even though two callbacks, denormalizer is invoked only once!
+      expect(denormalizerInvokeCounter).to.be(1);
+
+      expect(callbackDataOne).to.eql([initialQueryResponse, cqrsEventChangedPayload]);
+      expect(callbackDataTwo).to.eql([initialQueryResponse, cqrsEventChangedPayload]);
     });
 
 

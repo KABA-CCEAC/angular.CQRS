@@ -18,7 +18,7 @@ store.for(&#39;profile&#39;).do(function (personDetails) {
 <ul class="methods"><li><h3 id="methods_do">do(callback, errorCallback)</h3>
 <div class="do"><div class="ngcqrs-service-page ngcqrs-service-store-do-page"><p>register a handler for events on the specified viewModelName</p>
 </div><h5 id="methods_do_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>callback</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ngcqrs-service-page ngcqrs-service-store-do-page"><p>Function that is called on first query response and on subsequent events.
-Angular.CQRS will pass in the denormalized object (See <a href="#/api/ngCQRS.provider:CQRSProvider#registerdenormalizerfunctions">registerDenormalizerFunctions</a>).</p>
+Angular.CQRS will pass in the denormalized object (See <a href="#/api/ngCQRS.service:DenormalizationService#registerdenormalizerfunction">registerDenormalizerFunction</a>).</p>
 </div></td></tr><tr><td>errorCallback</td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="ngcqrs-service-page ngcqrs-service-store-do-page"><p>Function that is called on a http error during the first query request.
 Angular.CQRS will pass in the received data and the http status code.</p>
 </div></td></tr></tbody></table></div>
