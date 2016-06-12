@@ -82,7 +82,7 @@ angular.module('ngCQRS')
         denormalizerFunctions[config.aggregateType][config.eventName] = {};
       }
       if (angular.isDefined(denormalizerFunctions[config.aggregateType][config.eventName][config.viewModelName])) {
-        throw 'Denormalizer function for viewModelName "' + config.viewModelName + '", aggregateType: "' + config.aggregateType + '" and eventName "' + config.eventName + '" already defined.';
+        denormalizerFunctions[config.aggregateType][config.eventName][config.viewModelName] = {};
       }
       denormalizerFunctions[config.aggregateType][config.eventName][config.viewModelName] = denormalizerFunction;
     }
